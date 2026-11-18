@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mock X search</title>
+    <style>
+      body {
+        margin: 0;
+        font: 16px system-ui;
+      }
+      main {
+        max-width: 600px;
+        margin-inline: auto;
+      }
+      [role="tablist"] {
+        display: flex;
+        gap: 1rem;
+        padding: 10px;
+      }
+      [data-testid="cellInnerDiv"] {
+        min-height: 125px;
+        border-bottom: 1px solid grey;
+      }
+      article {
+        padding: 12px;
+      }
+      [data-testid="tweetText"] {
+        white-space: pre-wrap;
+      }
+      aside {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main data-testid="primaryColumn">
+      <label for="search">Search</label>
+      <input type="search" id="search" />
+      <nav role="tablist" aria-label="Search filters">
+        <a href="/search?q=fixture" role="tab" aria-selected="true">Top</a>
+        <a href="/search?q=fixture&amp;f=live" role="tab" aria-selected="false"
+          >Terbaru</a
+        >
+        <a href="/search?q=fixture&amp;f=user" role="tab" aria-selected="false"
+          >People</a
+        >
+        <a href="/search?q=fixture&amp;f=media" role="tab" aria-selected="false"
+          >Media</a
+        >
+      </nav>
+      <section aria-labelledby="accessible-list-0">
+        <h1 id="accessible-list-0" hidden>Search timeline</h1>
+        <div id="timeline" aria-label="Timeline: Search timeline"></div>
+      </section>
+    </main>
+    <aside>Search filters and suggestions</aside>
+  </body>
+</html>

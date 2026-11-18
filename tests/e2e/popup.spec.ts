@@ -46,7 +46,7 @@ test("popup settings persist, merge, and reset", async ({
   const firstPopup = await extensionContext.newPage();
   await firstPopup.goto(url);
   await expect(
-    firstPopup.getByText("Buka linimasa For You atau Following"),
+    firstPopup.getByText("Buka beranda atau tab Top/Latest di pencarian X"),
   ).toBeVisible();
   const firstToggle = firstPopup.getByRole("checkbox", {
     name: "Aktifkan deteksi",

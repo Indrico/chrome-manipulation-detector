@@ -6,7 +6,7 @@ export interface LocatedPost {
 }
 
 export interface PlatformAdapter {
-  supports(url: Pick<Location, "origin" | "pathname">): boolean;
+  supports(url: Pick<Location, "origin" | "pathname" | "search">): boolean;
   findFeed(document: Document): HTMLElement | null;
   findCards(node: Node): HTMLElement[];
   changedCards(mutation: MutationRecord): HTMLElement[];

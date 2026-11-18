@@ -39,10 +39,10 @@ let feedback: FeedbackRecord[] = [];
 let totalsChanged = false;
 let feedbackChanged = false;
 const platformLabels: Readonly<Record<PlatformStatus, string>> = {
-  active: "Linimasa aktif",
-  waiting: "Menunggu linimasa For You atau Following",
+  active: "Deteksi aktif",
+  waiting: "Menunggu unggahan dari beranda atau pencarian",
   paused: "Deteksi dijeda",
-  unsupported: "Buka linimasa For You atau Following",
+  unsupported: "Buka beranda atau tab Top/Latest di pencarian X",
 };
 
 async function refreshPlatform() {

@@ -9,6 +9,7 @@ const homeTabs = new Set([
   "untukmu",
   "mengikuti",
 ]);
+const searchTabs = new Set(["top", "latest", "populer", "teratas", "terbaru"]);
 const statusPath = /^(?:\/[a-z0-9_]{1,15}|\/i\/web)\/status\/(\d{1,25})\/?$/i;
 const visibleReplyLabel = /^(?:replying to\b|membalas\b)/iu;
 const structural = [
@@ -30,13 +31,18 @@ function statusId(anchor: HTMLAnchorElement) {
   }
 }
 
-export function supportsXHome(
-  url: Pick<Location, "origin" | "pathname">,
+function isSearchPath(pathname: string): boolean {
+  return pathname === "/search" || pathname === "/search/";
+}
+
+function supportsXFeed(
+  url: Pick<Location, "origin" | "pathname" | "search">,
 ): boolean {
-  return (
-    url.origin === xOrigin &&
-    (url.pathname === "/home" || url.pathname === "/home/")
-  );
+  if (url.origin !== xOrigin) return false;
+  if (url.pathname === "/home" || url.pathname === "/home/") return true;
+  if (!isSearchPath(url.pathname)) return false;
+  const filter = new URLSearchParams(url.search).get("f");
+  return !filter || filter === "top" || filter === "live";
 }
 
 function ownedBy(element: Element, card: HTMLElement) {
@@ -47,12 +53,19 @@ function ownedBy(element: Element, card: HTMLElement) {
 }
 
 function findFeed(document: Document): HTMLElement | null {
+  const url = document.location;
+  if (!url || !supportsXFeed(url)) return null;
   const column = document.querySelector(selectors.column);
   if (!column) return null;
   const tabs = column.querySelectorAll(selectors.selectedTab);
   const tab = tabs.length === 1 ? tabs[0] : undefined;
   const labels = [tab?.getAttribute("aria-label"), tab?.textContent];
-  if (!labels.some((label) => homeTabs.has(label?.trim().toLowerCase() ?? "")))
+  const supportedTabs = isSearchPath(url.pathname) ? searchTabs : homeTabs;
+  if (
+    !labels.some((label) =>
+      supportedTabs.has(label?.trim().toLowerCase() ?? ""),
+    )
+  )
     return null;
 
   const regions = [
@@ -224,7 +237,7 @@ function readPost(post: LocatedPost, includeContext: boolean): PostInput {
 }
 
 export const xAdapter: PlatformAdapter = {
-  supports: supportsXHome,
+  supports: supportsXFeed,
   findFeed,
   findCards,
   changedCards,

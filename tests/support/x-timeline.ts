@@ -16,7 +16,10 @@ export type MockPost = {
 };
 
 export async function openTimeline(context: BrowserContext, path = "/home") {
-  const html = await readFile("tests/fixtures/x-timeline.html", "utf8");
+  const fixture = /^\/search\/?(?:[?#]|$)/.test(path)
+    ? "x-search"
+    : "x-timeline";
+  const html = await readFile(`tests/fixtures/${fixture}.html`, "utf8");
   const page = await context.newPage();
   await page.route("https://x.com/**", (route) =>
     route.fulfill({ contentType: "text/html", body: html }),

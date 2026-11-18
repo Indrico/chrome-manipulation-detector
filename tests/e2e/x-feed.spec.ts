@@ -45,7 +45,7 @@ test("annotates visible home posts and keeps interaction and feedback local", as
   await expect(popup.locator("#posts")).toHaveText("2");
   await expect(popup.locator("#patterns")).toHaveText("2");
   await popup.reload();
-  await expect(popup.locator("#platform")).toHaveText("Linimasa aktif");
+  await expect(popup.locator("#platform")).toHaveText("Deteksi aktif");
 
   const feedback = badge
     .locator("section")

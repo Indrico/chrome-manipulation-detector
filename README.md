@@ -4,7 +4,7 @@ A privacy-first Chrome extension for learning to recognize rhetorical patterns i
 
 ## Current status
 
-The Chrome prerelease includes all eight detection categories and integration with the **For You** and **Following** home timelines on `x.com`. Open `https://x.com/home` to see inline explanations as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
+The current source includes all eight detection categories and supports the **For You** and **Following** home timelines and the **Top** and **Latest** search results on `x.com`. Inline explanations appear as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
 
 The adapter recognizes English and Indonesian timeline labels and depends on the rendered X layout. It skips known replies, collapsed posts, and cards with ambiguous structure. Whataboutism and Strawman can compare the main post with a clearly associated, rendered quote card. Browser tests use a mock X feed. Compatibility with the current signed-in X layout remains unverified.
 
