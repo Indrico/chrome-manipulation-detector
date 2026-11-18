@@ -8,6 +8,7 @@ export const selectors = {
   cell: '[data-testid="cellInnerDiv"]',
   card: 'article[data-testid="tweet"]',
   text: '[data-testid="tweetText"]',
+  explicitQuote: '[data-testid="quoteTweet"]',
   quote:
     '[data-testid="quoteTweet"], [data-testid="card.wrapper"], div[role="link"]',
   reply: '[data-testid="replyingTo"], [data-testid="replyContext"]',

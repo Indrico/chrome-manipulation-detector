@@ -3,21 +3,29 @@ import { extractContext } from "../../src/core/context-extractor";
 import { detectAdHominem } from "../../src/detectors/ad-hominem";
 import { detectFalseDilemma } from "../../src/detectors/false-dilemma";
 import { detectGuiltTripping } from "../../src/detectors/guilt-tripping";
-import {
-  supportedPatternIds,
-  type SupportedPatternId,
-} from "../../src/data/patterns";
+import { detectAppealToAuthority } from "../../src/detectors/appeal-to-authority";
+import { detectLoadedQuestions } from "../../src/detectors/loaded-questions";
+import { detectFalseUrgency } from "../../src/detectors/false-urgency";
+import { detectWhataboutism } from "../../src/detectors/whataboutism";
+import { detectStrawman } from "../../src/detectors/strawman";
+import { supportedPatternIds } from "../../src/data/patterns";
+import type { PatternId } from "../../src/models/pattern";
 import type { Detector } from "../../src/models/detector";
-import { phase2Fixtures } from "../support/phase-2-fixtures";
+import { detectionFixtures } from "../support/detection-fixtures";
 
-const detectors: Record<SupportedPatternId, Detector> = {
+const detectors: Record<PatternId, Detector> = {
   "ad-hominem": detectAdHominem,
   "false-dilemma": detectFalseDilemma,
   "guilt-tripping": detectGuiltTripping,
+  "appeal-to-authority": detectAppealToAuthority,
+  "loaded-questions": detectLoadedQuestions,
+  "false-urgency": detectFalseUrgency,
+  whataboutism: detectWhataboutism,
+  strawman: detectStrawman,
 };
 
 const cases = supportedPatternIds.flatMap((patternId) =>
-  phase2Fixtures
+  detectionFixtures
     .filter(
       (fixture) =>
         fixture.target === patternId && fixture.split === "development",

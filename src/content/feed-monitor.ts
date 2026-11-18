@@ -3,7 +3,7 @@ import type {
   PlatformAdapter,
 } from "../adapters/platform-adapter";
 import { analyzePost } from "../core/detection-engine";
-import { supportedPatternIds } from "../data/patterns";
+import { contextualPatterns, supportedPatternIds } from "../data/patterns";
 import type { DetectionResult } from "../models/detection-result";
 import type { PatternId } from "../models/pattern";
 import type {
@@ -15,7 +15,11 @@ import { enabledPatterns, type Settings } from "../storage/settings";
 import { createAnnotation } from "../ui/annotation";
 
 type CachedMatch = Omit<DetectionResult, "matchedText">;
-type CachedRevision = Map<PatternId, CachedMatch | null>;
+type CachedRevision = {
+  results: Map<PatternId, CachedMatch | null>;
+  countedPatterns: Set<PatternId>;
+  contextFingerprint?: string;
+};
 type TrackedPost = {
   post: LocatedPost;
   intersecting: boolean;
@@ -169,7 +173,15 @@ export function createFeedMonitor(
       characterData: true,
       characterDataOldValue: true,
       attributes: true,
-      attributeFilter: ["aria-hidden", "hidden", "data-testid", "href", "role"],
+      attributeFilter: [
+        "aria-hidden",
+        "hidden",
+        "data-testid",
+        "href",
+        "role",
+        "style",
+        "class",
+      ],
     });
     for (const card of adapter.findCards(feed)) pending.add(card);
   }
@@ -252,18 +264,36 @@ export function createFeedMonitor(
     );
   }
 
+  async function fingerprint(text: string) {
+    const hash = await crypto.subtle.digest("SHA-256", encoder.encode(text));
+    return [...new Uint8Array(hash)]
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
   async function analyzeVisible(state: TrackedPost) {
     if (!canAnalyze(state)) return;
-    const text = adapter.readText(state.post);
+    const input = adapter.readPost(
+      state.post,
+      activePatterns.some((id) => contextualPatterns.includes(id)),
+    );
+    const { text } = input;
+    const context = input.context?.filter(
+      (item) => item.text.length <= maxPostLength,
+    );
     if (!text || text.length > maxPostLength) {
       state.complete = true;
       return;
     }
     const generation = state.generation;
     state.running = true;
-    let hash: ArrayBuffer;
+    let bodyFingerprint: string;
+    let contextFingerprint: string | undefined;
     try {
-      hash = await crypto.subtle.digest("SHA-256", encoder.encode(text));
+      [bodyFingerprint, contextFingerprint] = await Promise.all([
+        fingerprint(text),
+        context?.length ? fingerprint(JSON.stringify(context)) : undefined,
+      ]);
     } catch {
       return;
     } finally {
@@ -277,16 +307,20 @@ export function createFeedMonitor(
       }
     }
     if (state.generation !== generation || !canAnalyze(state)) return;
-    const fingerprint = Array.from(new Uint8Array(hash), (byte) =>
-      byte.toString(16).padStart(2, "0"),
-    ).join("");
-    const key = `${state.post.id}:${fingerprint}`;
-    const cached =
-      revisions.get(key) ?? new Map<PatternId, CachedMatch | null>();
-    if (!cached.size) delta.posts++;
-    const missing = activePatterns.filter((id) => !cached.has(id));
-    for (const id of missing) cached.set(id, null);
-    for (const result of analyzePost({ text }, missing)) {
+    const key = `${state.post.id}:${bodyFingerprint}`;
+    let cached = revisions.get(key);
+    if (!cached) {
+      cached = { results: new Map(), countedPatterns: new Set() };
+      delta.posts++;
+    }
+    const { results, countedPatterns } = cached;
+    if (cached.contextFingerprint !== contextFingerprint) {
+      for (const id of contextualPatterns) results.delete(id);
+      cached.contextFingerprint = contextFingerprint;
+    }
+    const missing = activePatterns.filter((id) => !results.has(id));
+    for (const id of missing) results.set(id, null);
+    for (const result of analyzePost({ text, context }, missing)) {
       if (result.confidenceLevel === "insufficient_context") continue;
       const {
         patternId,
@@ -297,7 +331,7 @@ export function createFeedMonitor(
         evidence,
         limitations,
       } = result;
-      cached.set(patternId, {
+      results.set(patternId, {
         patternId,
         patternName,
         confidenceLevel,
@@ -306,7 +340,10 @@ export function createFeedMonitor(
         evidence,
         limitations,
       });
-      delta.patterns++;
+      if (!countedPatterns.has(patternId)) {
+        countedPatterns.add(patternId);
+        delta.patterns++;
+      }
     }
     remember(revisions, key, cached);
     state.complete = true;
@@ -315,7 +352,7 @@ export function createFeedMonitor(
     if (!settings?.showAnnotations || dismissed.has(state.post.id)) return;
     const matches: DetectionResult[] = [];
     for (const id of activePatterns) {
-      const result = cached.get(id);
+      const result = results.get(id);
       if (result)
         matches.push({
           ...result,

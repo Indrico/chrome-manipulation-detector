@@ -121,7 +121,7 @@ test("category controls persist independently and reset to enabled", async ({
   const page = await extensionContext.newPage();
   await page.goto(`chrome-extension://${extensionId}/popup.html`);
   const categories = page.getByRole("group", { name: "Pola deteksi" });
-  await expect(categories.getByRole("checkbox")).toHaveCount(3);
+  await expect(categories.getByRole("checkbox")).toHaveCount(8);
   const adHominem = categories.getByRole("checkbox", { name: "Ad Hominem" });
   const falseDilemma = categories.getByRole("checkbox", {
     name: "Dilema palsu",
@@ -129,6 +129,7 @@ test("category controls persist independently and reset to enabled", async ({
   const guiltTripping = categories.getByRole("checkbox", {
     name: "Tekanan rasa bersalah",
   });
+  const strawman = categories.getByRole("checkbox", { name: "Strawman" });
 
   await expect(adHominem).toBeChecked();
   await adHominem.focus();
@@ -137,13 +138,18 @@ test("category controls persist independently and reset to enabled", async ({
   await expect(adHominem).toBeFocused();
   await falseDilemma.uncheck();
   await expect(falseDilemma).toBeEnabled();
+  await expect(strawman).toBeChecked();
+  await strawman.uncheck();
+  await expect(strawman).toBeEnabled();
   await page.reload();
   await expect(guiltTripping).toBeChecked();
   await expect(adHominem).not.toBeChecked();
   await expect(falseDilemma).not.toBeChecked();
+  await expect(strawman).not.toBeChecked();
 
   await page.getByRole("button", { name: "Atur ulang pengaturan" }).click();
   await expect(adHominem).toBeChecked();
   await expect(falseDilemma).toBeChecked();
   await expect(guiltTripping).toBeChecked();
+  await expect(strawman).toBeChecked();
 });

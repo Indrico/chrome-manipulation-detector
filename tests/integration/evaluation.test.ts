@@ -2,9 +2,9 @@ import { cpus, platform, release } from "node:os";
 import { expect, it } from "vitest";
 import { analyzePost } from "../../src/core/detection-engine";
 import { supportedPatternIds } from "../../src/data/patterns";
-import { phase2Fixtures } from "../support/phase-2-fixtures";
+import { detectionFixtures } from "../support/detection-fixtures";
 
-const holdout = phase2Fixtures.filter(({ split }) => split === "holdout");
+const holdout = detectionFixtures.filter(({ split }) => split === "holdout");
 
 it.each(holdout)("reserved fixture $id", ({ input, expected, rationale }) => {
   const results = analyzePost(input);
@@ -20,7 +20,8 @@ it.each(holdout)("reserved fixture $id", ({ input, expected, rationale }) => {
 });
 
 it("keeps the dataset and reserved split balanced by category and case type", () => {
-  expect(new Set(phase2Fixtures.map(({ id }) => id)).size).toBe(60);
+  expect(detectionFixtures).toHaveLength(160);
+  expect(new Set(detectionFixtures.map(({ id }) => id)).size).toBe(160);
   for (const target of supportedPatternIds) {
     for (const group of [
       "positive",
@@ -29,7 +30,7 @@ it("keeps the dataset and reserved split balanced by category and case type", ()
       "educational",
       "context",
     ]) {
-      const cases = phase2Fixtures.filter(
+      const cases = detectionFixtures.filter(
         (fixture) => fixture.target === target && fixture.group === group,
       );
       expect(cases.map(({ split }) => split).sort()).toEqual([
@@ -49,7 +50,7 @@ function ratio(numerator: number, denominator: number) {
 }
 
 it("reports synthetic classification metrics and an engine timing baseline", () => {
-  const evaluated = phase2Fixtures.map((fixture) => ({
+  const evaluated = detectionFixtures.map((fixture) => ({
     fixture,
     results: analyzePost(fixture.input),
   }));
@@ -105,11 +106,11 @@ it("reports synthetic classification metrics and an engine timing baseline", () 
   console.table(metrics);
 
   for (let round = 0; round < 10; round++) {
-    for (const { input } of phase2Fixtures) analyzePost(input);
+    for (const { input } of detectionFixtures) analyzePost(input);
   }
   const timings: number[] = [];
   for (let round = 0; round < 50; round++) {
-    for (const { input } of phase2Fixtures) {
+    for (const { input } of detectionFixtures) {
       const started = performance.now();
       analyzePost(input);
       timings.push(performance.now() - started);

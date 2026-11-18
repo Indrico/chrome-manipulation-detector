@@ -39,8 +39,8 @@ export type FeedbackRecord = z.infer<typeof feedbackSchema>[number];
 export const contentMessageSchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("totals:add"),
-    posts: count.max(32),
-    patterns: count.max(96),
+    posts: count,
+    patterns: count,
   }),
   z.strictObject({
     type: z.literal("feedback:add"),

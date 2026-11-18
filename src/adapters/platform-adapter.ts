@@ -11,5 +11,6 @@ export interface PlatformAdapter {
   findCards(node: Node): HTMLElement[];
   changedCards(mutation: MutationRecord): HTMLElement[];
   locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null;
-  readText(post: LocatedPost): string;
+  readPost(post: LocatedPost, includeContext: boolean): PostInput;
 }
+import type { PostInput } from "../models/post";

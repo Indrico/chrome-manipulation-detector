@@ -1,0 +1,1424 @@
+[
+  {
+    "id": "appeal-to-authority-positive-1",
+    "target": "appeal-to-authority",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dokter terkenal itu bilang produk ini pasti aman, jadi tidak perlu penelitian lagi."
+    },
+    "expected": {
+      "appeal-to-authority": "likely"
+    },
+    "rationale": "Status dokter dipakai untuk mengesampingkan penelitian."
+  },
+  {
+    "id": "appeal-to-authority-positive-2",
+    "target": "appeal-to-authority",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Menurut profesor itu, alat ini valid. So no need to check the data."
+    },
+    "expected": {
+      "appeal-to-authority": "likely"
+    },
+    "rationale": "Kesimpulan dari ahli diikuti penolakan memeriksa data."
+  },
+  {
+    "id": "appeal-to-authority-positive-3",
+    "target": "appeal-to-authority",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Ahli terkenal itu bilang cara ini berhasil, maka nggak perlu uji ulang."
+    },
+    "expected": {
+      "appeal-to-authority": "likely"
+    },
+    "rationale": "Pernyataan ahli menggantikan uji ulang."
+  },
+  {
+    "id": "appeal-to-authority-positive-4",
+    "target": "appeal-to-authority",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "A famous doctor says the treatment works, so there's no need for a trial."
+    },
+    "expected": {
+      "appeal-to-authority": "likely"
+    },
+    "rationale": "Fame and occupation are used to dismiss a trial."
+  },
+  {
+    "id": "appeal-to-authority-negative-1",
+    "target": "appeal-to-authority",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Menurut dokter, vaksin ini aman."
+    },
+    "expected": {},
+    "rationale": "Rujukan dokter berdiri tanpa penolakan bukti."
+  },
+  {
+    "id": "appeal-to-authority-negative-2",
+    "target": "appeal-to-authority",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Menurut profesor itu, hasilnya mendukung hipotesis. Data lengkap ada di lampiran."
+    },
+    "expected": {},
+    "rationale": "Ahli merujuk temuan yang dapat diperiksa."
+  },
+  {
+    "id": "appeal-to-authority-negative-3",
+    "target": "appeal-to-authority",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "The expert says it works, but we should still check the data."
+    },
+    "expected": {},
+    "rationale": "Pemeriksaan data tetap dianjurkan."
+  },
+  {
+    "id": "appeal-to-authority-negative-4",
+    "target": "appeal-to-authority",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "A famous doctor says it works, but we need more evidence."
+    },
+    "expected": {},
+    "rationale": "The author keeps the claim open to evaluation."
+  },
+  {
+    "id": "appeal-to-authority-ambiguous-1",
+    "target": "appeal-to-authority",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia kan profesor terkenal."
+    },
+    "expected": {},
+    "rationale": "Gelar saja tidak menyatakan kesimpulan atau penolakan verifikasi."
+  },
+  {
+    "id": "appeal-to-authority-ambiguous-2",
+    "target": "appeal-to-authority",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Menurut dokter, apa kita masih perlu penelitian lagi?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan membuka diskusi tentang verifikasi."
+  },
+  {
+    "id": "appeal-to-authority-ambiguous-3",
+    "target": "appeal-to-authority",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Menurut expert, ini mungkin works."
+    },
+    "expected": {},
+    "rationale": "Klaim bersyarat tanpa pengganti bukti."
+  },
+  {
+    "id": "appeal-to-authority-ambiguous-4",
+    "target": "appeal-to-authority",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "The professor says the result is promising, apparently."
+    },
+    "expected": {},
+    "rationale": "The report is tentative and makes no demand to forgo evidence."
+  },
+  {
+    "id": "appeal-to-authority-educational-1",
+    "target": "appeal-to-authority",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh appeal to authority: Dokter terkenal itu bilang aman, jadi tidak perlu penelitian lagi."
+    },
+    "expected": {},
+    "rationale": "Wacana menjelaskan pola."
+  },
+  {
+    "id": "appeal-to-authority-educational-2",
+    "target": "appeal-to-authority",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "“Menurut dokter ini aman, jadi tidak perlu penelitian lagi.” Kalimat itu contoh banding pada otoritas."
+    },
+    "expected": {},
+    "rationale": "Materi dikutip untuk dibahas."
+  },
+  {
+    "id": "appeal-to-authority-educational-3",
+    "target": "appeal-to-authority",
+    "group": "educational",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Contoh appeal to authority: A doctor says it works, so no need to check the data."
+    },
+    "expected": {},
+    "rationale": "Contoh pengajaran memiliki bingkai eksplisit."
+  },
+  {
+    "id": "appeal-to-authority-educational-4",
+    "target": "appeal-to-authority",
+    "group": "educational",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "An example of appeal to authority: The professor says it works, so no need to verify it."
+    },
+    "expected": {},
+    "rationale": "Explicit teaching frame."
+  },
+  {
+    "id": "appeal-to-authority-context-1",
+    "target": "appeal-to-authority",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dokter itu bilang alat ini aman. Jadi tidak perlu cek datanya."
+    },
+    "expected": {
+      "appeal-to-authority": "likely"
+    },
+    "rationale": "Kalimat kedua menutup pemeriksaan berdasarkan status ahli."
+  },
+  {
+    "id": "appeal-to-authority-context-2",
+    "target": "appeal-to-authority",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau dokter sudah bilang aman, tetap perlu cek datanya."
+    },
+    "expected": {},
+    "rationale": "Klausa utama mempertahankan pemeriksaan."
+  },
+  {
+    "id": "appeal-to-authority-context-3",
+    "target": "appeal-to-authority",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Katanya, dokter itu bilang aman, jadi tidak perlu cek datanya."
+    },
+    "expected": {},
+    "rationale": "Klaim diatribusikan kepada orang lain."
+  },
+  {
+    "id": "appeal-to-authority-context-4",
+    "target": "appeal-to-authority",
+    "group": "context",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Menurut profesor, cara ini aman, jadi tidak perlu penelitian lagi. Namun data tetap harus diperiksa."
+    },
+    "expected": {},
+    "rationale": "Kalimat berikutnya secara eksplisit membatalkan penolakan bukti."
+  },
+  {
+    "id": "loaded-questions-positive-1",
+    "target": "loaded-questions",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kapan kamu berhenti menyebarkan kebohongan?"
+    },
+    "expected": {
+      "loaded-questions": "likely"
+    },
+    "rationale": "Pertanyaan mengandaikan kebohongan telah disebarkan."
+  },
+  {
+    "id": "loaded-questions-positive-2",
+    "target": "loaded-questions",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kenapa lu masih memalsukan data?"
+    },
+    "expected": {
+      "loaded-questions": "likely"
+    },
+    "rationale": "Masih mengandaikan tindakan itu telah terjadi."
+  },
+  {
+    "id": "loaded-questions-positive-3",
+    "target": "loaded-questions",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "When did you stop memalsukan angka?"
+    },
+    "expected": {
+      "loaded-questions": "likely"
+    },
+    "rationale": "Struktur pertanyaan Inggris mengandaikan tuduhan dalam bahasa Indonesia."
+  },
+  {
+    "id": "loaded-questions-positive-4",
+    "target": "loaded-questions",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "How many times have you lied about the report?"
+    },
+    "expected": {
+      "loaded-questions": "likely"
+    },
+    "rationale": "Counting assumes at least one lie."
+  },
+  {
+    "id": "loaded-questions-negative-1",
+    "target": "loaded-questions",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Apa kamu pernah menyebarkan kabar palsu?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan masih memberi ruang menjawab tidak pernah."
+  },
+  {
+    "id": "loaded-questions-negative-2",
+    "target": "loaded-questions",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kapan kamu berhenti bekerja di sana?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan waktu tanpa tuduhan dalam kosakata aturan."
+  },
+  {
+    "id": "loaded-questions-negative-3",
+    "target": "loaded-questions",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Did you actually memalsukan data?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan meminta konfirmasi tindakan."
+  },
+  {
+    "id": "loaded-questions-negative-4",
+    "target": "loaded-questions",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "Which entries do you think were changed?"
+    },
+    "expected": {},
+    "rationale": "The speaker asks for an assessment without presupposing the respondent committed wrongdoing."
+  },
+  {
+    "id": "loaded-questions-ambiguous-1",
+    "target": "loaded-questions",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kenapa kamu bicara seperti itu?"
+    },
+    "expected": {},
+    "rationale": "Rujukan tidak cukup untuk menyimpulkan tuduhan tersembunyi."
+  },
+  {
+    "id": "loaded-questions-ambiguous-2",
+    "target": "loaded-questions",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Jadi, kapan kamu berhenti?"
+    },
+    "expected": {},
+    "rationale": "Tindakan yang dimaksud tidak jelas."
+  },
+  {
+    "id": "loaded-questions-ambiguous-3",
+    "target": "loaded-questions",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "When are you going to explain angka itu?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan tentang penjelasan tanpa tuduhan spesifik."
+  },
+  {
+    "id": "loaded-questions-ambiguous-4",
+    "target": "loaded-questions",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "Why are you still working on this?"
+    },
+    "expected": {},
+    "rationale": "Still does not by itself make a question accusatory."
+  },
+  {
+    "id": "loaded-questions-educational-1",
+    "target": "loaded-questions",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh pertanyaan bermuatan: Kapan kamu berhenti menyebarkan kebohongan?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan diperkenalkan sebagai contoh."
+  },
+  {
+    "id": "loaded-questions-educational-2",
+    "target": "loaded-questions",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "“Kenapa kamu masih memalsukan data?” disebut sebagai contoh di kelas."
+    },
+    "expected": {},
+    "rationale": "Pesan mengutip pertanyaan sebagai materi ajar."
+  },
+  {
+    "id": "loaded-questions-educational-3",
+    "target": "loaded-questions",
+    "group": "educational",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Contoh loaded question: When did you stop lying?"
+    },
+    "expected": {},
+    "rationale": "Bingkai edukatif berlaku pada pertanyaan Inggris."
+  },
+  {
+    "id": "loaded-questions-educational-4",
+    "target": "loaded-questions",
+    "group": "educational",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "An example of a loaded question: Why are you still lying?"
+    },
+    "expected": {},
+    "rationale": "The post presents a teaching example."
+  },
+  {
+    "id": "loaded-questions-context-1",
+    "target": "loaded-questions",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kamu mengaku sudah memalsukan data. Kapan kamu berhenti memalsukan data?"
+    },
+    "expected": {},
+    "rationale": "Kalimat sebelumnya menyatakan pengakuan sehingga tuduhan bukan asumsi terselubung."
+  },
+  {
+    "id": "loaded-questions-context-2",
+    "target": "loaded-questions",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau memang benar, kapan kamu berhenti berbohong?"
+    },
+    "expected": {},
+    "rationale": "Premis ditandai bersyarat."
+  },
+  {
+    "id": "loaded-questions-context-3",
+    "target": "loaded-questions",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kita belum menilai tabel itu. Sejak kapan kamu memalsukan laporan?"
+    },
+    "expected": {
+      "loaded-questions": "likely"
+    },
+    "rationale": "Pertanyaan mengandaikan pemalsuan ketika penilaian belum dilakukan."
+  },
+  {
+    "id": "loaded-questions-context-4",
+    "target": "loaded-questions",
+    "group": "context",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "You admitted you lied about the report. When did you stop lying about it?"
+    },
+    "expected": {},
+    "rationale": "An explicit admission precedes the question."
+  },
+  {
+    "id": "false-urgency-positive-1",
+    "target": "false-urgency",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Bagikan sekarang juga! Kalau tidak, kesempatanmu akan hilang selamanya!"
+    },
+    "expected": {
+      "false-urgency": "possible"
+    },
+    "rationale": "Ajakan segera disertai ancaman kehilangan permanen."
+  },
+  {
+    "id": "false-urgency-positive-2",
+    "target": "false-urgency",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Beli sekarang juga dan jangan cek dulu ulasannya."
+    },
+    "expected": {
+      "false-urgency": "likely"
+    },
+    "rationale": "Tekanan untuk membeli disertai larangan memeriksa."
+  },
+  {
+    "id": "false-urgency-positive-3",
+    "target": "false-urgency",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Share sekarang juga! Jangan cek sumbernya dulu."
+    },
+    "expected": {
+      "false-urgency": "likely"
+    },
+    "rationale": "Imperatif campuran diikuti larangan verifikasi."
+  },
+  {
+    "id": "false-urgency-positive-4",
+    "target": "false-urgency",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "Act right now or you'll lose your chance forever."
+    },
+    "expected": {
+      "false-urgency": "possible"
+    },
+    "rationale": "Immediate action is paired with an irreversible consequence."
+  },
+  {
+    "id": "false-urgency-negative-1",
+    "target": "false-urgency",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Penawaran berakhir pukul 23.59."
+    },
+    "expected": {},
+    "rationale": "Tenggat yang informatif tanpa paksaan."
+  },
+  {
+    "id": "false-urgency-negative-2",
+    "target": "false-urgency",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Daftar hari ini sebelum pukul 17.00 agar masuk gelombang pertama."
+    },
+    "expected": {},
+    "rationale": "Ada alasan dan jadwal konkret."
+  },
+  {
+    "id": "false-urgency-negative-3",
+    "target": "false-urgency",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Submit sekarang jika ingin dapat balasan hari ini."
+    },
+    "expected": {},
+    "rationale": "Manfaat wajar dengan pilihan dan tanpa larangan cek."
+  },
+  {
+    "id": "false-urgency-negative-4",
+    "target": "false-urgency",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "The evacuation order takes effect immediately. Check the official map for your route."
+    },
+    "expected": {},
+    "rationale": "Legitimate urgency pairs with verification."
+  },
+  {
+    "id": "false-urgency-ambiguous-1",
+    "target": "false-urgency",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Buruan, mumpung ada!"
+    },
+    "expected": {},
+    "rationale": "Dorongan waktu saja tanpa paksaan atau bukti penghalangan pemeriksaan."
+  },
+  {
+    "id": "false-urgency-ambiguous-2",
+    "target": "false-urgency",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Mungkin ini kesempatan terakhir."
+    },
+    "expected": {},
+    "rationale": "Pernyataan tentatif tanpa tuntutan bertindak."
+  },
+  {
+    "id": "false-urgency-ambiguous-3",
+    "target": "false-urgency",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Book now, seats are limited."
+    },
+    "expected": {},
+    "rationale": "Keterbatasan kapasitas bukan ancaman artifisial yang jelas."
+  },
+  {
+    "id": "false-urgency-ambiguous-4",
+    "target": "false-urgency",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "Please act promptly if you can."
+    },
+    "expected": {},
+    "rationale": "A request for speed still leaves the choice with the reader."
+  },
+  {
+    "id": "false-urgency-educational-1",
+    "target": "false-urgency",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh urgensi palsu: Beli sekarang juga dan jangan cek dulu ulasannya."
+    },
+    "expected": {},
+    "rationale": "Penutur sedang menjelaskan pola."
+  },
+  {
+    "id": "false-urgency-educational-2",
+    "target": "false-urgency",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "“Bagikan sekarang juga! Jangan cek dulu sumbernya.” Ini contoh urgensi palsu."
+    },
+    "expected": {},
+    "rationale": "Seruan berada dalam kutipan edukatif."
+  },
+  {
+    "id": "false-urgency-educational-3",
+    "target": "false-urgency",
+    "group": "educational",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Contoh false urgency: Share right now and don't check the source."
+    },
+    "expected": {},
+    "rationale": "Seruan merupakan contoh."
+  },
+  {
+    "id": "false-urgency-educational-4",
+    "target": "false-urgency",
+    "group": "educational",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "An example of false urgency: Act right now or you'll lose your chance forever."
+    },
+    "expected": {},
+    "rationale": "The author frames the imperative as an example."
+  },
+  {
+    "id": "false-urgency-context-1",
+    "target": "false-urgency",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Daftar sekarang juga. Jangan verifikasi tautannya dulu."
+    },
+    "expected": {
+      "false-urgency": "likely"
+    },
+    "rationale": "Kalimat kedua mencegah verifikasi yang wajar."
+  },
+  {
+    "id": "false-urgency-context-2",
+    "target": "false-urgency",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Bagikan sekarang juga. Silakan cek sumbernya lebih dulu."
+    },
+    "expected": {},
+    "rationale": "Ajakan memperbolehkan verifikasi."
+  },
+  {
+    "id": "false-urgency-context-3",
+    "target": "false-urgency",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kirim sekarang juga atau aksesmu hilang selamanya."
+    },
+    "expected": {
+      "false-urgency": "possible"
+    },
+    "rationale": "Tuntutan segera dihubungkan dengan kehilangan akses permanen."
+  },
+  {
+    "id": "false-urgency-context-4",
+    "target": "false-urgency",
+    "group": "context",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Bagikan sekarang juga! Kalau tidak, kesempatanmu akan hilang selamanya! /s"
+    },
+    "expected": {},
+    "rationale": "Penanda satire menempel pada klausa konsekuensi."
+  },
+  {
+    "id": "whataboutism-positive-1",
+    "target": "whataboutism",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Tidak usah bahas kritik itu. Pemerintahan sebelumnya juga menaikkan tarif.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Tarif bus naik dan merugikan penumpang."
+        }
+      ]
+    },
+    "expected": {
+      "whataboutism": "likely"
+    },
+    "rationale": "Menolak menjawab kritik lalu mengalihkan ke pelaku lain."
+  },
+  {
+    "id": "whataboutism-positive-2",
+    "target": "whataboutism",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Jangan membahas kritik itu, tim lain juga melanggar aturan.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Tim tuan rumah curang dengan melanggar batas waktu."
+        }
+      ]
+    },
+    "expected": {
+      "whataboutism": "likely"
+    },
+    "rationale": "Tuduhan atas pihak lain dipakai untuk menolak kritik yang dikutip."
+  },
+  {
+    "id": "whataboutism-positive-3",
+    "target": "whataboutism",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Tidak perlu jawab kritik itu. What about the last administration?",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Kebijakan ini gagal menjaga biaya sekolah."
+        }
+      ]
+    },
+    "expected": {
+      "whataboutism": "likely"
+    },
+    "rationale": "Pertanyaan pengalih mengikuti penolakan eksplisit."
+  },
+  {
+    "id": "whataboutism-positive-4",
+    "target": "whataboutism",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "Don't address that criticism. The previous administration did the same.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "The new transit policy failed to improve safety."
+        }
+      ]
+    },
+    "expected": {
+      "whataboutism": "likely"
+    },
+    "rationale": "Refusal to respond is followed by an accusation about another party."
+  },
+  {
+    "id": "whataboutism-negative-1",
+    "target": "whataboutism",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kebijakan ini gagal. Pemerintahan sebelumnya juga gagal. Keduanya perlu diperiksa.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Kebijakan ini gagal menjaga harga pangan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Perbandingan memperluas evaluasi dan tetap mengakui kritik."
+  },
+  {
+    "id": "whataboutism-negative-2",
+    "target": "whataboutism",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Berapa kali pemerintahan sebelumnya mengubah jadwal bus?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan historis tidak menghindari kritik yang sedang diajukan."
+  },
+  {
+    "id": "whataboutism-negative-3",
+    "target": "whataboutism",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "What about the last administration? Saya ingin membandingkan data."
+    },
+    "expected": {},
+    "rationale": "Ada maksud konsistensi dan tidak ada penolakan menanggapi."
+  },
+  {
+    "id": "whataboutism-negative-4",
+    "target": "whataboutism",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "The previous administration did the same, and both decisions were wrong."
+    },
+    "expected": {},
+    "rationale": "The comparison accepts the criticism."
+  },
+  {
+    "id": "whataboutism-ambiguous-1",
+    "target": "whataboutism",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Pemerintahan sebelumnya juga begitu."
+    },
+    "expected": {},
+    "rationale": "Tanpa tanda penghindaran, perbandingan dapat bersifat netral."
+  },
+  {
+    "id": "whataboutism-ambiguous-2",
+    "target": "whataboutism",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kenapa kamu mengkritik kebijakan ini? Pemerintahan sebelumnya juga melakukan hal yang sama."
+    },
+    "expected": {
+      "whataboutism": "insufficient_context"
+    },
+    "rationale": "Bentuk pengalihan terlihat, namun kritik asli tidak tersedia."
+  },
+  {
+    "id": "whataboutism-ambiguous-3",
+    "target": "whataboutism",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "What about the last administration?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan tunggal dapat meminta informasi."
+  },
+  {
+    "id": "whataboutism-ambiguous-4",
+    "target": "whataboutism",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "What about the other team?"
+    },
+    "expected": {},
+    "rationale": "No refusal or original criticism is apparent."
+  },
+  {
+    "id": "whataboutism-educational-1",
+    "target": "whataboutism",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh whataboutism: Tidak usah bahas kritik itu. Pemerintahan sebelumnya juga menaikkan tarif.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Tarif bus naik dan merugikan penumpang."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Bingkai pengajaran membuka contoh penghindaran."
+  },
+  {
+    "id": "whataboutism-educational-2",
+    "target": "whataboutism",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "“Jangan membahas kritik itu, tim lain juga melanggar aturan.” Ini contoh whataboutism."
+    },
+    "expected": {},
+    "rationale": "Penutur mengutip kalimat orang lain."
+  },
+  {
+    "id": "whataboutism-educational-3",
+    "target": "whataboutism",
+    "group": "educational",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Contoh pengalihan: Don't address that criticism. What about the other team?",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Tim tuan rumah melanggar aturan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Pola disampaikan sebagai contoh."
+  },
+  {
+    "id": "whataboutism-educational-4",
+    "target": "whataboutism",
+    "group": "educational",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "An example of whataboutism: Ignore that criticism. The other party did the same.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "The change failed to protect users."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Explicit educational frame."
+  },
+  {
+    "id": "whataboutism-context-1",
+    "target": "whataboutism",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Tidak usah bahas kritik itu. Pemerintahan sebelumnya juga menaikkan tarif."
+    },
+    "expected": {
+      "whataboutism": "insufficient_context"
+    },
+    "rationale": "Respons terlihat mengalihkan tanpa kritik asli."
+  },
+  {
+    "id": "whataboutism-context-2",
+    "target": "whataboutism",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Tidak usah bahas kritik itu. Pemerintahan sebelumnya juga menaikkan tarif.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Tarif bus diumumkan pada hari Jumat."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Teks terkait hanya menyebut jadwal, tanpa kritik."
+  },
+  {
+    "id": "whataboutism-context-3",
+    "target": "whataboutism",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kenapa kamu mengkritik kebijakan ini? Pemerintahan sebelumnya juga melakukan hal yang sama.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Kebijakan ini gagal membatasi biaya."
+        }
+      ]
+    },
+    "expected": {
+      "whataboutism": "possible"
+    },
+    "rationale": "Perbandingan mengikuti pertanyaan yang menolak fokus kritik yang terlihat."
+  },
+  {
+    "id": "whataboutism-context-4",
+    "target": "whataboutism",
+    "group": "context",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Jangan bahas kritik itu. Kubu lain juga melanggar aturan, tapi kritik itu benar.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Mereka melanggar aturan distribusi."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Penulis secara eksplisit tetap mengakui kritik."
+  },
+  {
+    "id": "strawman-positive-1",
+    "target": "strawman",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses mobil selamanya. Usulnya ngawur.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses mobil pada akhir pekan."
+        }
+      ]
+    },
+    "expected": {
+      "strawman": "likely"
+    },
+    "rationale": "Pembatasan waktu diperluas menjadi larangan total lalu diserang."
+  },
+  {
+    "id": "strawman-positive-2",
+    "target": "strawman",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses parkir selamanya. Ide itu konyol.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses parkir di pusat kota."
+        }
+      ]
+    },
+    "expected": {
+      "strawman": "likely"
+    },
+    "rationale": "Pembatasan dengan lokasi tertentu digambarkan sebagai larangan permanen."
+  },
+  {
+    "id": "strawman-positive-3",
+    "target": "strawman",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "So you want to ban all akses motor forever. Itu konyol.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses motor saat jam sibuk."
+        }
+      ]
+    },
+    "expected": {
+      "strawman": "likely"
+    },
+    "rationale": "Lingkup usul diperluas dalam kalimat campur kode."
+  },
+  {
+    "id": "strawman-positive-4",
+    "target": "strawman",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "You want to ban all car access forever. That's ridiculous.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Limit car access on weekends."
+        }
+      ]
+    },
+    "expected": {
+      "strawman": "likely"
+    },
+    "rationale": "A temporary restriction is recast as a permanent total ban and attacked."
+  },
+  {
+    "id": "strawman-negative-1",
+    "target": "strawman",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses mobil selamanya. Usulnya ngawur.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Larang semua akses mobil selamanya."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Representasi konsisten dengan teks asli, meski ada kritik tajam."
+  },
+  {
+    "id": "strawman-negative-2",
+    "target": "strawman",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Saya tidak setuju pembatasan akses mobil pada akhir pekan.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses mobil pada akhir pekan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Kritik mempertahankan lingkup kebijakan."
+  },
+  {
+    "id": "strawman-negative-3",
+    "target": "strawman",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "So you want to ban all akses motor forever? Aku mau memastikan maksudmu.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses motor saat jam sibuk."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Pertanyaan klarifikasi tanpa serangan terhadap klaim."
+  },
+  {
+    "id": "strawman-negative-4",
+    "target": "strawman",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "You want to ban all car access forever. That seems costly.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Ban all car access forever."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "The original explicitly proposes the same total ban."
+  },
+  {
+    "id": "strawman-ambiguous-1",
+    "target": "strawman",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia berlebihan soal mobil.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses mobil pada akhir pekan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Tidak ada representasi dengan isi yang bisa dibandingkan."
+  },
+  {
+    "id": "strawman-ambiguous-2",
+    "target": "strawman",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses parkir selamanya."
+    },
+    "expected": {},
+    "rationale": "Tidak ada serangan terhadap representasi."
+  },
+  {
+    "id": "strawman-ambiguous-3",
+    "target": "strawman",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "So you want to ban all akses motor forever. Itu konyol."
+    },
+    "expected": {
+      "strawman": "insufficient_context"
+    },
+    "rationale": "Ada serangan pada representasi, tetapi klaim sumber tidak tersedia."
+  },
+  {
+    "id": "strawman-ambiguous-4",
+    "target": "strawman",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "You want to ban all car access forever?"
+    },
+    "expected": {},
+    "rationale": "A question with no attack can be an attempt to clarify."
+  },
+  {
+    "id": "strawman-educational-1",
+    "target": "strawman",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh strawman: Dia mau melarang semua akses mobil selamanya. Usulnya ngawur.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses mobil pada akhir pekan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Ujaran mereproduksi bentuk untuk mengajar."
+  },
+  {
+    "id": "strawman-educational-2",
+    "target": "strawman",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "“Dia mau melarang semua akses mobil selamanya. Usulnya ngawur.” Ini disebut strawman.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses mobil pada akhir pekan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Klaim yang dipelintir dikutip sebagai bahan diskusi."
+  },
+  {
+    "id": "strawman-educational-3",
+    "target": "strawman",
+    "group": "educational",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Contoh strawman: So you want to ban all akses motor forever. Itu konyol.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses motor saat jam sibuk."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Contoh campuran berada dalam bingkai edukatif."
+  },
+  {
+    "id": "strawman-educational-4",
+    "target": "strawman",
+    "group": "educational",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "An example of a strawman: You want to ban all car access forever. That's ridiculous.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Limit car access on weekends."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "The author introduces the distortion as an example."
+  },
+  {
+    "id": "strawman-context-1",
+    "target": "strawman",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses mobil selamanya. Usulnya ngawur."
+    },
+    "expected": {
+      "strawman": "insufficient_context"
+    },
+    "rationale": "Bentuk kandidat kuat tanpa klaim asli."
+  },
+  {
+    "id": "strawman-context-2",
+    "target": "strawman",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses mobil selamanya. Usulnya ngawur.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses motor pada akhir pekan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Topik klaim yang tersedia berbeda."
+  },
+  {
+    "id": "strawman-context-3",
+    "target": "strawman",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses mobil selamanya. Usulnya ngawur.",
+      "context": [
+        {
+          "source": "reply_target",
+          "text": "Batasi akses mobil saat jam sibuk."
+        }
+      ]
+    },
+    "expected": {
+      "strawman": "likely"
+    },
+    "rationale": "Konteks eksplisit memberi klaim pembatasan yang bisa dibandingkan."
+  },
+  {
+    "id": "strawman-context-4",
+    "target": "strawman",
+    "group": "context",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Dia mau melarang semua akses mobil selamanya. Usulnya ngawur. Eh, ternyata saya salah baca.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Batasi akses mobil pada akhir pekan."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Penulis menarik kembali representasi yang diserang."
+  }
+]

@@ -16,7 +16,7 @@ const explicitSatire =
 const satireMarkerOnly =
   /^(?:\/s|#satir(?:e)?|just kidding|cuma bercanda)[.!]?$/u;
 const metaExample =
-  /(?:ini|itu|kalimat (?:ini|itu))\s+(?:adalah\s+)?contoh\s+(?:ad hominem|dilema palsu|false dilemma|guilt tripping|tekanan rasa bersalah)\b|^(?:this|that)\s+is\s+an?\s+example of\b/u;
+  /(?:ini|itu|kalimat (?:ini|itu))\s+(?:adalah\s+)?contoh\s+(?:ad hominem|dilema palsu|false dilemma|guilt tripping|tekanan rasa bersalah|banding pada otoritas|appeal to authority|pertanyaan bermuatan|loaded questions?|urgensi palsu|false urgency|whataboutism|strawman)\b|^(?:this|that)\s+is\s+an?\s+example of\b/u;
 
 export function extractContext(post: PostInput): DetectionContext {
   // Keep UTF-16 offsets aligned even when a quotation spans several sentences.

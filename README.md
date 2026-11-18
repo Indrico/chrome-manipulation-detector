@@ -4,11 +4,11 @@ A privacy-first Chrome extension for learning to recognize rhetorical patterns i
 
 ## Current status
 
-Phases 1–3 cover the extension shell, three detectors (Ad Hominem, False Dilemma, and Guilt Tripping), and integration with the **For You** and **Following** home timelines on `x.com`. Open `https://x.com/home` to see inline explanations as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
+Phases 1–4 cover the extension shell, all eight detection categories, and integration with the **For You** and **Following** home timelines on `x.com`. Open `https://x.com/home` to see inline explanations as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
 
-The adapter recognizes English and Indonesian timeline labels and depends on the rendered X layout. It skips replies it can identify, quoted post text, collapsed posts, and cards with ambiguous structure. Browser tests use a mock X feed. Compatibility with the current signed-in X layout remains unverified.
+The adapter recognizes English and Indonesian timeline labels and depends on the rendered X layout. It skips known replies, collapsed posts, and cards with ambiguous structure. Whataboutism and Strawman can compare the main post with a clearly associated, rendered quote card. Browser tests use a mock X feed. Compatibility with the current signed-in X layout remains unverified.
 
-The popup counts each analyzed post revision once per tab document while it is in the bounded cache. A revision with two detected patterns adds one to the post total and two to the pattern total. Both totals reset with the browser session.
+The popup counts each analyzed post revision and each of its detected categories once per tab document while the revision is in the bounded cache. Changes to a quote can update the annotation without recounting the main post. Both totals reset with the browser session.
 
 ## Install and develop
 

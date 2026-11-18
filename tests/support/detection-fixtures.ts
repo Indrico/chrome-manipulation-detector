@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { confidenceLevelSchema } from "../../src/models/detection-result";
 import { patternIdSchema } from "../../src/models/pattern";
-import fixtures from "../fixtures/phase-2.json";
+import phase2 from "../fixtures/phase-2.json";
+import phase4 from "../fixtures/phase-4.json";
 
 const fixtureSchema = z.strictObject({
   id: z.string().min(1),
@@ -30,4 +31,6 @@ const fixtureSchema = z.strictObject({
   rationale: z.string().min(1),
 });
 
-export const phase2Fixtures = z.array(fixtureSchema).parse(fixtures);
+export const detectionFixtures = z
+  .array(fixtureSchema)
+  .parse([...phase2, ...phase4]);

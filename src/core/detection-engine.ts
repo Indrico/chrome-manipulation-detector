@@ -5,20 +5,26 @@ import {
 import type { DetectionCandidate, Detector } from "../models/detector";
 import type { PatternId } from "../models/pattern";
 import type { PostInput } from "../models/post";
-import {
-  patternNames,
-  supportedPatternIds,
-  type SupportedPatternId,
-} from "../data/patterns";
+import { patternNames, supportedPatternIds } from "../data/patterns";
 import { extractContext } from "./context-extractor";
 import { detectAdHominem } from "../detectors/ad-hominem";
 import { detectFalseDilemma } from "../detectors/false-dilemma";
 import { detectGuiltTripping } from "../detectors/guilt-tripping";
+import { detectAppealToAuthority } from "../detectors/appeal-to-authority";
+import { detectLoadedQuestions } from "../detectors/loaded-questions";
+import { detectFalseUrgency } from "../detectors/false-urgency";
+import { detectWhataboutism } from "../detectors/whataboutism";
+import { detectStrawman } from "../detectors/strawman";
 
-const detectors: Readonly<Record<SupportedPatternId, Detector>> = {
+const detectors: Readonly<Record<PatternId, Detector>> = {
   "ad-hominem": detectAdHominem,
   "false-dilemma": detectFalseDilemma,
   "guilt-tripping": detectGuiltTripping,
+  "appeal-to-authority": detectAppealToAuthority,
+  "loaded-questions": detectLoadedQuestions,
+  "false-urgency": detectFalseUrgency,
+  whataboutism: detectWhataboutism,
+  strawman: detectStrawman,
 };
 
 const confidenceOrder = ["insufficient_context", "possible", "likely"];

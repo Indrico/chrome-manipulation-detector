@@ -7,10 +7,12 @@ import {
 } from "../../src/storage/settings";
 import { detectionResultSchema } from "../../src/models/detection-result";
 import { supportedPatternIds } from "../../src/data/patterns";
-import { phase2Fixtures } from "../support/phase-2-fixtures";
+import { detectionFixtures } from "../support/detection-fixtures";
 
 describe("detection pipeline", () => {
-  const cases = phase2Fixtures.filter(({ split }) => split === "development");
+  const cases = detectionFixtures.filter(
+    ({ split }) => split === "development",
+  );
   it.each(cases)("$id", (fixture) => {
     const results = analyzePost(fixture.input);
     expect(
@@ -80,7 +82,7 @@ describe("detection pipeline", () => {
     ]);
   });
 
-  it("handles empty input and categories planned for later phases", () => {
+  it("handles empty input and excludes categories outside the selected rules", () => {
     expect(analyzePost({ text: " \n\t " })).toEqual([]);
     expect(
       analyzePost({ text: "Kalau kamu tidak setuju, kamu bodoh." }, [
@@ -94,6 +96,32 @@ describe("detection pipeline", () => {
     const text = `Dia bilang, “Menurutku anggarannya rendah.” ${excerpt}`;
     expect(analyzePost({ text }, ["ad-hominem"])).toEqual([
       expect.objectContaining({ matchedText: excerpt }),
+    ]);
+  });
+
+  it.each([
+    "Bagikan sekarang juga. Jangan pikir saya setuju.",
+    "Beli sekarang juga atau kamu tidak akan kehilangan kesempatanmu selamanya.",
+    "Kapan kamu berhenti memalsukan data, kalau memang kamu pernah?",
+  ])(
+    "leaves negated consequences and qualified premises unflagged: %s",
+    (text) => {
+      expect(analyzePost({ text })).toEqual([]);
+    },
+  );
+
+  it("abstains when a Strawman candidate has multiple possible originals", () => {
+    const text =
+      "Dia mau melarang semua akses mobil selamanya. Usulnya ngawur.";
+    const context = [
+      { source: "quoted_post", text: "Batasi akses mobil pada akhir pekan." },
+      { source: "reply_target", text: "Larang semua akses mobil selamanya." },
+    ] as const;
+    expect(analyzePost({ text, context })).toEqual([
+      expect.objectContaining({
+        patternId: "strawman",
+        confidenceLevel: "insufficient_context",
+      }),
     ]);
   });
 });
