@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manipulation Detector</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./main.ts"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Manipulation Detector</h1>
+        <p>Pelajari cara sebuah unggahan mencoba meyakinkan pembacanya.</p>
+      </header>
+      <p class="platform-status">
+        <strong>X</strong> · <span id="platform">Memeriksa tab…</span>
+      </p>
+      <dl class="session-totals" aria-label="Sesi browser">
+        <div>
+          <dt>Unggahan dianalisis</dt>
+          <dd id="posts">—</dd>
+        </div>
+        <div>
+          <dt>Potensi pola</dt>
+          <dd id="patterns">—</dd>
+        </div>
+      </dl>
+      <fieldset id="preferences" disabled>
+        <legend>Pengaturan</legend>
+        <label><input type="checkbox" id="enabled" /> Aktifkan deteksi</label>
+        <label
+          ><input type="checkbox" id="annotations" /> Tampilkan anotasi</label
+        >
+        <fieldset id="categories">
+          <legend>Pola deteksi</legend>
+        </fieldset>
+        <button type="button" id="reset">Atur ulang pengaturan</button>
+      </fieldset>
+      <p id="status" role="status">Memuat pengaturan…</p>
+      <details class="feedback">
+        <summary>Umpan balik lokal</summary>
+        <button type="button" id="export-feedback" disabled>Ekspor JSON</button>
+        <button type="button" id="clear-feedback" disabled>
+          Hapus umpan balik
+        </button>
+      </details>
+      <footer>
+        <p>Analisis berlangsung di perangkat Anda.</p>
+        <nav aria-label="Dokumentasi">
+          <a href="/panduan.html" target="_blank" rel="noopener">Panduan</a>
+          <a href="/panduan.html#privasi" target="_blank" rel="noopener"
+            >Kebijakan privasi</a
+          >
+        </nav>
+      </footer>
+    </main>
+  </body>
+</html>

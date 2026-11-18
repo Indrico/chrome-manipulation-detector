@@ -1,0 +1,779 @@
+[
+  {
+    "id": "ad-hominem-positive-1",
+    "target": "ad-hominem",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau kamu tidak setuju, kamu bodoh."
+    },
+    "expected": {
+      "ad-hominem": "possible"
+    },
+    "rationale": "Ketidaksetujuan langsung dibalas serangan terhadap pribadi."
+  },
+  {
+    "id": "ad-hominem-positive-2",
+    "target": "ad-hominem",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Argumenmu tidak perlu didengar karena kamu tolol."
+    },
+    "expected": {
+      "ad-hominem": "likely"
+    },
+    "rationale": "Penghinaan menjadi alasan untuk menolak argumen."
+  },
+  {
+    "id": "ad-hominem-positive-3",
+    "target": "ad-hominem",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Kalau lu disagree, lu idiot."
+    },
+    "expected": {
+      "ad-hominem": "possible"
+    },
+    "rationale": "Frasa campuran mengaitkan perbedaan pendapat dengan hinaan."
+  },
+  {
+    "id": "ad-hominem-positive-4",
+    "target": "ad-hominem",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "Your argument is invalid because you're an idiot."
+    },
+    "expected": {
+      "ad-hominem": "likely"
+    },
+    "rationale": "An insult explicitly supplies the reason for dismissing the argument."
+  },
+  {
+    "id": "ad-hominem-negative-1",
+    "target": "ad-hominem",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kamu bodoh!"
+    },
+    "expected": {},
+    "rationale": "Hinaan berdiri sendiri tanpa hubungan dengan argumen."
+  },
+  {
+    "id": "ad-hominem-negative-2",
+    "target": "ad-hominem",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Aku nggak setuju karena angka di tabel ini keliru."
+    },
+    "expected": {},
+    "rationale": "Penolakan merujuk pada angka."
+  },
+  {
+    "id": "ad-hominem-negative-3",
+    "target": "ad-hominem",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Menurutku argumen itu silly karena kesimpulannya lompat."
+    },
+    "expected": {},
+    "rationale": "Penilaian merujuk pada argumen dan menyertakan alasan."
+  },
+  {
+    "id": "ad-hominem-negative-4",
+    "target": "ad-hominem",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "I didn't call you an idiot. Your argument leaves out the budget."
+    },
+    "expected": {},
+    "rationale": "The insult is denied and the argument receives a substantive answer."
+  },
+  {
+    "id": "ad-hominem-ambiguous-1",
+    "target": "ad-hominem",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Wow, genius banget kamu 🙃"
+    },
+    "expected": {},
+    "rationale": "Nada bisa sarkastis, tetapi sasaran argumen tidak tampak."
+  },
+  {
+    "id": "ad-hominem-ambiguous-2",
+    "target": "ad-hominem",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kamu tidak setuju? Kamu bukan orang bodoh."
+    },
+    "expected": {},
+    "rationale": "Penutur secara eksplisit menyangkal label pribadi."
+  },
+  {
+    "id": "ad-hominem-ambiguous-3",
+    "target": "ad-hominem",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Mungkin kamu bodoh soal statistik, tapi aku mau mendengar alasanmu."
+    },
+    "expected": {},
+    "rationale": "Penutur menghina lalu menyatakan kesediaan mendengar alasan."
+  },
+  {
+    "id": "ad-hominem-ambiguous-4",
+    "target": "ad-hominem",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "mixed",
+    "input": {
+      "text": "Sure, professor. Jelasin lagi deh."
+    },
+    "expected": {},
+    "rationale": "Nada mengejek mungkin ada, tetapi tidak cukup untuk menilai penolakan argumen."
+  },
+  {
+    "id": "ad-hominem-educational-1",
+    "target": "ad-hominem",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "“Kalau kamu tidak setuju, kamu bodoh.” Itu contoh ad hominem."
+    },
+    "expected": {},
+    "rationale": "Kalimat yang cocok dikutip sebagai contoh."
+  },
+  {
+    "id": "ad-hominem-educational-2",
+    "target": "ad-hominem",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh ad hominem: Kalau kamu tidak setuju, kamu bodoh."
+    },
+    "expected": {},
+    "rationale": "Penanda pengajaran membingkai contoh tanpa tanda kutip."
+  },
+  {
+    "id": "ad-hominem-educational-3",
+    "target": "ad-hominem",
+    "group": "educational",
+    "split": "development",
+    "language": "en",
+    "input": {
+      "text": "An example of ad hominem: If you disagree, you are an idiot."
+    },
+    "expected": {},
+    "rationale": "The text explicitly teaches the pattern."
+  },
+  {
+    "id": "ad-hominem-educational-4",
+    "target": "ad-hominem",
+    "group": "educational",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "“Argumenmu tidak perlu didengar karena kamu tolol,” tulisnya. Itu serangan pribadi."
+    },
+    "expected": {},
+    "rationale": "Penutur melaporkan dan menilai pernyataan lain."
+  },
+  {
+    "id": "ad-hominem-context-1",
+    "target": "ad-hominem",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Aku menolak cara debat itu.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Argumenmu tidak perlu didengar karena kamu bodoh."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Isi kartu kutipan tidak diperlakukan sebagai ucapan penulis unggahan."
+  },
+  {
+    "id": "ad-hominem-context-2",
+    "target": "ad-hominem",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Argumenmu tidak layak didengar karena kamu bodoh.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Kita perlu memperbaiki jadwal kereta sore."
+        }
+      ]
+    },
+    "expected": {
+      "ad-hominem": "likely"
+    },
+    "rationale": "Unggahan sendiri menyerang pembuat argumen yang dikutip."
+  },
+  {
+    "id": "ad-hominem-context-3",
+    "target": "ad-hominem",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dia bilang kalau kamu tidak setuju, kamu bodoh."
+    },
+    "expected": {},
+    "rationale": "Atribusi tanpa tanda kutip menempatkan hinaan pada ucapan orang lain."
+  },
+  {
+    "id": "ad-hominem-context-4",
+    "target": "ad-hominem",
+    "group": "context",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Pendapatmu tidak penting. Soalnya kamu goblok."
+    },
+    "expected": {
+      "ad-hominem": "likely"
+    },
+    "rationale": "Kalimat kedua memberi alasan pribadi bagi penolakan pada kalimat pertama."
+  },
+  {
+    "id": "false-dilemma-positive-1",
+    "target": "false-dilemma",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau kamu tidak mendukung kebijakan ini, berarti kamu bagian dari masalah."
+    },
+    "expected": {
+      "false-dilemma": "possible"
+    },
+    "rationale": "Tidak mendukung disamakan dengan menjadi bagian dari masalah."
+  },
+  {
+    "id": "false-dilemma-positive-2",
+    "target": "false-dilemma",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Kalau lu nggak support kebijakan ini, berarti lu bagian dari masalah."
+    },
+    "expected": {
+      "false-dilemma": "possible"
+    },
+    "rationale": "Frasa campuran menyamakan sikap tidak mendukung dengan posisi lawan."
+  },
+  {
+    "id": "false-dilemma-positive-3",
+    "target": "false-dilemma",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Cuma ada dua pilihan: dukung rencana ini atau kamu pengkhianat."
+    },
+    "expected": {
+      "false-dilemma": "likely"
+    },
+    "rationale": "Penutur membatasi pilihan pada dukungan atau cap pengkhianat."
+  },
+  {
+    "id": "false-dilemma-positive-4",
+    "target": "false-dilemma",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "If you don't support this proposal, you're against us."
+    },
+    "expected": {
+      "false-dilemma": "possible"
+    },
+    "rationale": "Lack of support is recast as opposition to the group."
+  },
+  {
+    "id": "false-dilemma-negative-1",
+    "target": "false-dilemma",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Untuk pengiriman paket ini, pilihannya cuma dua: ambil di loket atau minta diantar."
+    },
+    "expected": {},
+    "rationale": "Pilihan layanan yang nyata tidak menyamakan posisi."
+  },
+  {
+    "id": "false-dilemma-negative-2",
+    "target": "false-dilemma",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau kamu tidak mendukung kebijakan ini, kita bisa membahas alternatif."
+    },
+    "expected": {},
+    "rationale": "Ada ruang untuk pandangan lain."
+  },
+  {
+    "id": "false-dilemma-negative-3",
+    "target": "false-dilemma",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "You can support kebijakan ini atau minta perubahan."
+    },
+    "expected": {},
+    "rationale": "Dua opsi disebut tanpa menutup opsi lain secara paksa."
+  },
+  {
+    "id": "false-dilemma-negative-4",
+    "target": "false-dilemma",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "If you disagree, we can still work together on a revision."
+    },
+    "expected": {},
+    "rationale": "Disagreement leaves room for collaboration."
+  },
+  {
+    "id": "false-dilemma-ambiguous-1",
+    "target": "false-dilemma",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Dukung rencana ini, atau apa?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan terbuka tidak menetapkan kubu lawan."
+  },
+  {
+    "id": "false-dilemma-ambiguous-2",
+    "target": "false-dilemma",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Mungkin dua kubu itu memang berbeda soal anggaran."
+    },
+    "expected": {},
+    "rationale": "Dua kelompok yang disebut tidak otomatis menghabiskan semua opsi."
+  },
+  {
+    "id": "false-dilemma-ambiguous-3",
+    "target": "false-dilemma",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Kalau lu nggak support, ya nggak support."
+    },
+    "expected": {},
+    "rationale": "Tidak ada kesimpulan tambahan tentang kubu atau karakter."
+  },
+  {
+    "id": "false-dilemma-ambiguous-4",
+    "target": "false-dilemma",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Cuma ada dua pilihan? Aku masih belum tahu."
+    },
+    "expected": {},
+    "rationale": "Penutur mempertanyakan jumlah alternatif."
+  },
+  {
+    "id": "false-dilemma-educational-1",
+    "target": "false-dilemma",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh dilema palsu: Cuma ada dua pilihan: dukung rencana ini atau kamu pengkhianat."
+    },
+    "expected": {},
+    "rationale": "Pembuka mendeskripsikan bentuk sebagai bahan belajar."
+  },
+  {
+    "id": "false-dilemma-educational-2",
+    "target": "false-dilemma",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "“Kalau kamu tidak mendukung ini, berarti kamu musuh kami.” Ini contoh menyederhanakan pilihan."
+    },
+    "expected": {},
+    "rationale": "Kalimat sasaran merupakan kutipan pendidikan."
+  },
+  {
+    "id": "false-dilemma-educational-3",
+    "target": "false-dilemma",
+    "group": "educational",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Contoh false dilemma: If you don't support this proposal, you're against us."
+    },
+    "expected": {},
+    "rationale": "Penanda pengajaran berlaku untuk kalimat campuran."
+  },
+  {
+    "id": "false-dilemma-educational-4",
+    "target": "false-dilemma",
+    "group": "educational",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "For example, a false dilemma says: If you don't agree, you are against us."
+    },
+    "expected": {},
+    "rationale": "The apparent forced choice is attributed to a teaching example."
+  },
+  {
+    "id": "false-dilemma-context-1",
+    "target": "false-dilemma",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau kamu tidak mendukung kebijakan ini, berarti kamu bagian dari masalah. /s"
+    },
+    "expected": {},
+    "rationale": "Penanda satire eksplisit meminta abstain."
+  },
+  {
+    "id": "false-dilemma-context-2",
+    "target": "false-dilemma",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Saya tidak bilang kalau kamu tidak mendukung kebijakan ini, berarti kamu bagian dari masalah."
+    },
+    "expected": {},
+    "rationale": "Penutur menyangkal pernah membuat kesetaraan itu."
+  },
+  {
+    "id": "false-dilemma-context-3",
+    "target": "false-dilemma",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau kamu tidak mendukung kebijakan ini, berarti kamu tidak peduli dengan negara."
+    },
+    "expected": {
+      "false-dilemma": "possible",
+      "guilt-tripping": "possible"
+    },
+    "rationale": "Kalimat menyamakan ketidaksetujuan dengan ketiadaan kepedulian moral."
+  },
+  {
+    "id": "false-dilemma-context-4",
+    "target": "false-dilemma",
+    "group": "context",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Saya setuju masih ada usul lain.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Cuma ada dua pilihan: dukung rencana ini atau kamu pengkhianat."
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Teks yang dipaksakan hanya muncul di kartu kutipan."
+  },
+  {
+    "id": "guilt-tripping-positive-1",
+    "target": "guilt-tripping",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Setelah semua yang kami lakukan untukmu, kamu masih tega menolak?"
+    },
+    "expected": {
+      "guilt-tripping": "likely"
+    },
+    "rationale": "Bantuan sebelumnya dipakai untuk menekan keputusan saat ini."
+  },
+  {
+    "id": "guilt-tripping-positive-2",
+    "target": "guilt-tripping",
+    "group": "positive",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Setelah semua yang gue lakukan buat lu, kok lu say no?"
+    },
+    "expected": {
+      "guilt-tripping": "likely"
+    },
+    "rationale": "Pengorbanan dan tuduhan menolak dihubungkan dalam satu kalimat."
+  },
+  {
+    "id": "guilt-tripping-positive-3",
+    "target": "guilt-tripping",
+    "group": "positive",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kalau kamu benar-benar peduli pada warga, kamu harus mendukung usulan ini."
+    },
+    "expected": {
+      "guilt-tripping": "possible"
+    },
+    "rationale": "Kepedulian dipakai sebagai syarat moral untuk persetujuan."
+  },
+  {
+    "id": "guilt-tripping-positive-4",
+    "target": "guilt-tripping",
+    "group": "positive",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "After all I have done for you, how could you say no?"
+    },
+    "expected": {
+      "guilt-tripping": "likely"
+    },
+    "rationale": "Past help is invoked as a reason the listener should feel unable to refuse."
+  },
+  {
+    "id": "guilt-tripping-negative-1",
+    "target": "guilt-tripping",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Setelah semua yang kami lakukan, kamu tetap bebas menolak."
+    },
+    "expected": {},
+    "rationale": "Penutur menyatakan hak untuk menolak."
+  },
+  {
+    "id": "guilt-tripping-negative-2",
+    "target": "guilt-tripping",
+    "group": "negative",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Aku kecewa karena kamu menolak, tapi aku menghargai keputusanmu."
+    },
+    "expected": {},
+    "rationale": "Penutur mengungkapkan emosi dan menerima keputusan."
+  },
+  {
+    "id": "guilt-tripping-negative-3",
+    "target": "guilt-tripping",
+    "group": "negative",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Kalau kamu sayang aku, call me kalau sempat."
+    },
+    "expected": {},
+    "rationale": "Permintaan memberi kebebasan waktu dan tidak memaksa."
+  },
+  {
+    "id": "guilt-tripping-negative-4",
+    "target": "guilt-tripping",
+    "group": "negative",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "I appreciate what you did for me. Could you help again if you're free?"
+    },
+    "expected": {},
+    "rationale": "Gratitude and a request leave the listener free to decline."
+  },
+  {
+    "id": "guilt-tripping-ambiguous-1",
+    "target": "guilt-tripping",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Masa kamu nggak mau bantu?"
+    },
+    "expected": {},
+    "rationale": "Ada tekanan, tetapi sumber kewajiban moral tidak jelas."
+  },
+  {
+    "id": "guilt-tripping-ambiguous-2",
+    "target": "guilt-tripping",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Aku sudah banyak berkorban minggu ini."
+    },
+    "expected": {},
+    "rationale": "Pengorbanan disebut tanpa tuntutan kepada orang lain."
+  },
+  {
+    "id": "guilt-tripping-ambiguous-3",
+    "target": "guilt-tripping",
+    "group": "ambiguous",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "If you care, boleh share kalau mau."
+    },
+    "expected": {},
+    "rationale": "Seruan peduli disertai pilihan nyata."
+  },
+  {
+    "id": "guilt-tripping-ambiguous-4",
+    "target": "guilt-tripping",
+    "group": "ambiguous",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Kalau kamu benar-benar peduli, apa yang bisa kita lakukan?"
+    },
+    "expected": {},
+    "rationale": "Pertanyaan terbuka tidak mengharuskan tindakan tertentu."
+  },
+  {
+    "id": "guilt-tripping-educational-1",
+    "target": "guilt-tripping",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Contoh tekanan rasa bersalah: Setelah semua yang kami lakukan untukmu, kamu masih tega menolak?"
+    },
+    "expected": {},
+    "rationale": "Contoh pelajaran dibingkai secara eksplisit."
+  },
+  {
+    "id": "guilt-tripping-educational-2",
+    "target": "guilt-tripping",
+    "group": "educational",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Ungkapan “Setelah semua yang kami lakukan untukmu, kamu masih tega menolak?” dibahas di kelas."
+    },
+    "expected": {},
+    "rationale": "Kutipan berada di dalam penjelasan."
+  },
+  {
+    "id": "guilt-tripping-educational-3",
+    "target": "guilt-tripping",
+    "group": "educational",
+    "split": "development",
+    "language": "mixed",
+    "input": {
+      "text": "Contoh guilt tripping: After all I have done for you, how could you say no?"
+    },
+    "expected": {},
+    "rationale": "Bahasa pengantar mengenalkan contoh."
+  },
+  {
+    "id": "guilt-tripping-educational-4",
+    "target": "guilt-tripping",
+    "group": "educational",
+    "split": "holdout",
+    "language": "en",
+    "input": {
+      "text": "An example of guilt tripping: After all we did for you, how could you refuse?"
+    },
+    "expected": {},
+    "rationale": "A teaching frame precedes the example."
+  },
+  {
+    "id": "guilt-tripping-context-1",
+    "target": "guilt-tripping",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Setelah semua yang kamu lakukan untukku, aku tidak akan bilang kamu tega menolak."
+    },
+    "expected": {},
+    "rationale": "Klausa negasi menolak melakukan tekanan."
+  },
+  {
+    "id": "guilt-tripping-context-2",
+    "target": "guilt-tripping",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Lihat bagaimana kalimat di kartu itu menekan keputusan pembaca.",
+      "context": [
+        {
+          "source": "quoted_post",
+          "text": "Setelah semua yang kami lakukan untukmu, kamu masih tega menolak?"
+        }
+      ]
+    },
+    "expected": {},
+    "rationale": "Tekanan dari kutipan tidak diatribusikan kepada penulis unggahan."
+  },
+  {
+    "id": "guilt-tripping-context-3",
+    "target": "guilt-tripping",
+    "group": "context",
+    "split": "development",
+    "language": "id",
+    "input": {
+      "text": "Kami sudah berkorban demi kamu. Kamu masih tega menolak?"
+    },
+    "expected": {
+      "guilt-tripping": "likely"
+    },
+    "rationale": "Kalimat kedua mengaitkan penolakan dengan pengorbanan sebelumnya."
+  },
+  {
+    "id": "guilt-tripping-context-4",
+    "target": "guilt-tripping",
+    "group": "context",
+    "split": "holdout",
+    "language": "id",
+    "input": {
+      "text": "Katanya, setelah semua yang kami lakukan untukmu, kamu masih tega menolak?"
+    },
+    "expected": {},
+    "rationale": "Atribusi membingkai kalimat sebagai laporan ucapan."
+  }
+]
