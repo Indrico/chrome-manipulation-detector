@@ -40,9 +40,9 @@ let totalsChanged = false;
 let feedbackChanged = false;
 const platformLabels: Readonly<Record<PlatformStatus, string>> = {
   active: "Deteksi aktif",
-  waiting: "Menunggu unggahan dari beranda atau pencarian",
+  waiting: "Menunggu unggahan di halaman X",
   paused: "Deteksi dijeda",
-  unsupported: "Buka beranda atau tab Top/Latest di pencarian X",
+  unsupported: "Buka beranda, hasil Top/Latest, atau detail unggahan X",
 };
 
 async function refreshPlatform() {

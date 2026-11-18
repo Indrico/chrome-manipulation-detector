@@ -32,6 +32,12 @@ const agreementAsMoralTest = new RegExp(
   fromDisagreement + addressee + lostCare,
   "u",
 );
+const familyDutyPressure = new RegExp(
+  "^(?:(?:kamu|anda)\\s+)?(?:sudah (?:gede|besar|dewasa)|sebagai anak)[,;\\s]+" +
+    "bukannya (?:bantu|membantu|menolong|merawat) (?:ibu|ayah|bapak|orang tua|ortu)(?:nya|mu)?[,;\\s]+" +
+    "malah (?:nyusahin|menyusahkan|merepotkan|(?:jadi|menjadi) beban)\\b",
+  "u",
+);
 
 export const detectGuiltTripping: Detector = function* ({ sentences }) {
   for (const [index, sentence] of sentences.entries()) {
@@ -68,6 +74,20 @@ export const detectGuiltTripping: Detector = function* ({ sentences }) {
         evidence: [
           "Kepedulian dipakai sebagai ukuran moral.",
           "Persetujuan atau tindakan tertentu dijadikan syarat untuk menunjukkan kepedulian.",
+        ],
+      };
+    } else if (!rulesText.endsWith("?") && familyDutyPressure.test(rulesText)) {
+      yield {
+        span,
+        confidenceLevel: "possible",
+        explanation:
+          "Kalimat ini mengaitkan kewajiban membantu keluarga dengan teguran yang mempermalukan orang yang dinilai tidak memenuhinya.",
+        evidence: [
+          "Harapan membantu keluarga dikaitkan dengan usia atau peran seseorang.",
+          "Orang tersebut digambarkan menyusahkan atau membebani keluarga.",
+        ],
+        limitations: [
+          "Konteks hubungan dan nada diperlukan untuk menilai apakah teguran ini digunakan sebagai tekanan.",
         ],
       };
     }

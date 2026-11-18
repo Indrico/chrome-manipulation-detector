@@ -4,7 +4,7 @@ Manipulation Detector is a Chrome Manifest V3 extension. WXT bundles three exten
 
 ## From post to annotation
 
-1. The X adapter recognizes the For You and Following home timelines and the Top and Latest search results. Platform selectors and eligibility rules live in the adapter. It extracts the visible main text and can supply one clearly associated quote as context.
+1. The X adapter recognizes the For You and Following home timelines and the Top and Latest search results. On a direct status page it selects the main post by matching its timestamp permalink to the requested status ID. Platform selectors and eligibility rules live in the adapter. It extracts the visible main text and can supply one clearly associated quote as context.
 2. The feed monitor batches DOM mutations and uses viewport intersection to select posts. It hashes text locally to deduplicate within a bounded tab-local cache. Cache entries contain fingerprints, evidence spans, and static explanations. Changing the quote only invalidates context-dependent decisions. Pausing or leaving the timeline clears active observers and annotations.
 3. The pure detection engine normalizes text, extracts context cues, and dispatches the enabled deterministic detectors. Results preserve their original text spans and use qualitative confidence. The annotation presents candidate results as text in its own shadow root.
 

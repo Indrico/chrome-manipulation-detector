@@ -78,6 +78,7 @@ export function createFeedMonitor(
   let settings: Settings | undefined;
   let activePatterns: readonly PatternId[] = [];
   let feed: HTMLElement | null = null;
+  let feedPath: string | undefined;
   let watchRoot = false;
   let refreshRoot = false;
   let suspended = false;
@@ -167,11 +168,13 @@ export function createFeedMonitor(
   }
 
   function setFeed(next: HTMLElement | null) {
-    if (next === feed) return;
+    const nextPath = next ? location.pathname : undefined;
+    if (next === feed && nextPath === feedPath) return;
     feedObserver.disconnect();
     for (const state of tracked.values()) untrack(state);
     pending.clear();
     feed = next;
+    feedPath = nextPath;
     if (!feed) return;
     feedObserver.observe(feed, {
       childList: true,
@@ -266,6 +269,7 @@ export function createFeedMonitor(
       state.intersecting &&
       activePatterns.length > 0 &&
       adapter.supports(location) &&
+      feedPath === location.pathname &&
       !!feed?.contains(state.post.card) &&
       isVisible(state.post.body)
     );
@@ -425,7 +429,12 @@ export function createFeedMonitor(
     status(): PlatformStatus {
       if (!adapter.supports(location)) return "unsupported";
       if (settings && !activePatterns.length) return "paused";
-      return settings && feed?.isConnected ? "active" : "waiting";
+      return settings &&
+        feed?.isConnected &&
+        feedPath === location.pathname &&
+        tracked.size > 0
+        ? "active"
+        : "waiting";
     },
   };
 }

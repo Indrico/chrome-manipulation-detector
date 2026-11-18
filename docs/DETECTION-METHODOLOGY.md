@@ -10,16 +10,16 @@ Manipulation Detector looks for relationships between parts of a message. A flag
 4. Check linked clauses or adjacent sentences for the enabled categories. Each detector provides an explanation and evidence for the relationship. The pipeline selects the strongest result per category, breaking ties by the earliest original text span.
 5. Validate the result and return the original excerpt. Its span uses UTF-16 offsets with an exclusive end.
 
-| Pattern             | Examples of linked evidence                                                                                                                                             |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ad Hominem          | A directed personal insult follows disagreement, or the text gives the insult as the reason to dismiss an argument.                                                     |
-| False Dilemma       | The text equates lack of support with a stigmatized alternative, or explicitly presents only two options and stigmatizes one of them.                                   |
-| Guilt Tripping      | Past support or sacrifice is used to shame someone for refusing, or moral concern is presented as conditional on taking a specific action.                              |
-| Appeal to Authority | An expert's statement is presented as a reason to stop checking evidence.                                                                                               |
-| Loaded Questions    | An interrogative asks when, how often, or why the addressee still performs an alleged act. Explicit qualifications and admissions suppress the flag.                    |
-| False Urgency       | An immediate imperative is paired with a block on verification or an irreversible-loss threat. The detector cannot establish whether a deadline or consequence is real. |
-| Whataboutism        | A recognizable criticism is paired with a response that rejects or challenges its discussion and pivots to another actor's actions.                                     |
-| Strawman            | A proposal that limits the same subject to a particular time or place is recast as a permanent or universal ban and then attacked.                                      |
+| Pattern             | Examples of linked evidence                                                                                                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ad Hominem          | A directed personal insult follows disagreement, or the text gives the insult as the reason to dismiss an argument.                                                                |
+| False Dilemma       | The text equates lack of support with a stigmatized alternative, or explicitly presents only two options and stigmatizes one of them.                                              |
+| Guilt Tripping      | Past help is used to shame someone for refusing, caring is made conditional on agreement, or an explicit family obligation is paired with wording that frames someone as a burden. |
+| Appeal to Authority | An expert's statement is presented as a reason to stop checking evidence.                                                                                                          |
+| Loaded Questions    | An interrogative asks when, how often, or why the addressee still performs an alleged act. Explicit qualifications and admissions suppress the flag.                               |
+| False Urgency       | An immediate imperative is paired with a block on verification or an irreversible-loss threat. The detector cannot establish whether a deadline or consequence is real.            |
+| Whataboutism        | A recognizable criticism is paired with a response that rejects or challenges its discussion and pivots to another actor's actions.                                                |
+| Strawman            | A proposal that limits the same subject to a particular time or place is recast as a permanent or universal ban and then attacked.                                                 |
 
 `possible` describes wording consistent with a pattern. `likely` requires a more direct relationship in the text. For a candidate Strawman or Whataboutism with missing or ambiguous source material, the engine returns `insufficient_context` with its limitation. The extension omits that result from annotations and session pattern totals.
 

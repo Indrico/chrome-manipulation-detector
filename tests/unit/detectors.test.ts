@@ -47,3 +47,27 @@ it.each(cases)("$id", (fixture) => {
     fixture.rationale,
   ).toContain(expected);
 });
+
+it("recognizes a family obligation framed with shame", () => {
+  const text = "Udah dewasa, bukannya bantu ayah malah jadi beban.";
+  const results = Array.from(detectGuiltTripping(extractContext({ text })));
+  expect(results).toEqual([
+    expect.objectContaining({
+      confidenceLevel: "possible",
+      span: { start: 0, end: text.length },
+    }),
+  ]);
+});
+
+it.each([
+  "Udah dewasa, bukannya bantu ayah malah pergi kuliah.",
+  "Tolong bantu ibu, ya. Dia bawa banyak barang.",
+  "Contoh ucapan yang mempermalukan: Sudah dewasa, bukannya bantu ayah malah jadi beban.",
+])(
+  "separates family requests and teaching examples from shaming: %s",
+  (text) => {
+    expect(Array.from(detectGuiltTripping(extractContext({ text })))).toEqual(
+      [],
+    );
+  },
+);

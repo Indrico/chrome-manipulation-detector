@@ -35,11 +35,12 @@ function isSearchPath(pathname: string): boolean {
   return pathname === "/search" || pathname === "/search/";
 }
 
-function supportsXFeed(
+function supportsXSurface(
   url: Pick<Location, "origin" | "pathname" | "search">,
 ): boolean {
   if (url.origin !== xOrigin) return false;
   if (url.pathname === "/home" || url.pathname === "/home/") return true;
+  if (statusPath.test(url.pathname)) return true;
   if (!isSearchPath(url.pathname)) return false;
   const filter = new URLSearchParams(url.search).get("f");
   return !filter || filter === "top" || filter === "live";
@@ -54,9 +55,10 @@ function ownedBy(element: Element, card: HTMLElement) {
 
 function findFeed(document: Document): HTMLElement | null {
   const url = document.location;
-  if (!url || !supportsXFeed(url)) return null;
-  const column = document.querySelector(selectors.column);
+  if (!url || !supportsXSurface(url)) return null;
+  const column = document.querySelector<HTMLElement>(selectors.column);
   if (!column) return null;
+  if (statusPath.test(url.pathname)) return column;
   const tabs = column.querySelectorAll(selectors.selectedTab);
   const tab = tabs.length === 1 ? tabs[0] : undefined;
   const labels = [tab?.getAttribute("aria-label"), tab?.textContent];
@@ -131,27 +133,52 @@ function changedCards(mutation: MutationRecord): HTMLElement[] {
   return [];
 }
 
-function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
+function isFeedCard(card: HTMLElement, feed: HTMLElement): boolean {
   const cell = card.closest(selectors.cell);
-  if (
-    !cell ||
-    !feed.contains(cell) ||
-    card.parentElement?.closest(selectors.card)
-  )
-    return null;
+  if (!cell || !feed.contains(cell)) return false;
   const enclosingQuote = card.closest(selectors.quote);
-  if (enclosingQuote && cell.contains(enclosingQuote)) return null;
+  if (enclosingQuote && cell.contains(enclosingQuote)) return false;
   const topCards = [
     ...cell.querySelectorAll<HTMLElement>(selectors.card),
   ].filter((candidate) => !candidate.parentElement?.closest(selectors.card));
-  if (topCards.length !== 1 || topCards[0] !== card) return null;
+  return topCards.length === 1 && topCards[0] === card;
+}
+
+function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
+  if (!feed.contains(card) || card.parentElement?.closest(selectors.card))
+    return null;
+  const statusInUrl = statusPath.exec(
+    feed.ownerDocument.location?.pathname ?? "",
+  )?.[1];
+  if (statusInUrl) {
+    const enclosingQuote = card.closest(selectors.quote);
+    if (enclosingQuote && feed.contains(enclosingQuote)) return null;
+  } else if (!isFeedCard(card, feed)) {
+    return null;
+  }
 
   const own = <T extends HTMLElement>(selector: string) =>
     [...card.querySelectorAll<T>(selector)].filter((element) =>
       ownedBy(element, card),
     );
-  if (own(selectors.reply).length || own(selectors.collapsed).length)
-    return null;
+  if (own(selectors.collapsed).length) return null;
+
+  const times = own<HTMLTimeElement>("time");
+  const anchor =
+    times.length === 1
+      ? times[0]?.closest<HTMLAnchorElement>("a[href]")
+      : undefined;
+  if (!anchor || !ownedBy(anchor, card)) return null;
+  const id = statusId(anchor);
+  if (!id || (statusInUrl && id !== statusInUrl)) return null;
+
+  const bodies = own(selectors.text);
+  const body = bodies.length === 1 ? bodies[0] : undefined;
+  if (!body) return null;
+
+  // A reply can be the requested status on a detail page.
+  if (statusInUrl) return { id, card, body, focusTarget: anchor };
+  if (own(selectors.reply).length) return null;
   // Some X layouts render the reply label as plain text beside a profile link.
   const socialLabels = own("div, span").filter(
     (element) =>
@@ -165,16 +192,7 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
   )
     return null;
 
-  const bodies = own(selectors.text);
-  const body = bodies.length === 1 ? bodies[0] : undefined;
-  const times = own<HTMLTimeElement>("time");
-  const anchor =
-    times.length === 1
-      ? times[0]?.closest<HTMLAnchorElement>("a[href]")
-      : undefined;
-  if (!body || !anchor || !ownedBy(anchor, card)) return null;
-  const id = statusId(anchor);
-  return id ? { id, card, body, focusTarget: anchor } : null;
+  return { id, card, body, focusTarget: anchor };
 }
 
 function readQuotedPost(post: LocatedPost): PostContext | undefined {
@@ -237,7 +255,7 @@ function readPost(post: LocatedPost, includeContext: boolean): PostInput {
 }
 
 export const xAdapter: PlatformAdapter = {
-  supports: supportsXFeed,
+  supports: supportsXSurface,
   findFeed,
   findCards,
   changedCards,

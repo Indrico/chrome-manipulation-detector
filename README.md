@@ -4,9 +4,9 @@ A privacy-first Chrome extension for learning to recognize rhetorical patterns i
 
 ## Current status
 
-The current source includes all eight detection categories and supports the **For You** and **Following** home timelines and the **Top** and **Latest** search results on `x.com`. Inline explanations appear as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
+The current source includes all eight detection categories and supports the **For You** and **Following** home timelines, the **Top** and **Latest** search results, and the main post on a direct status page on `x.com`. Inline explanations appear as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
 
-The adapter recognizes English and Indonesian timeline labels and depends on the rendered X layout. It skips known replies, collapsed posts, and cards with ambiguous structure. Whataboutism and Strawman can compare the main post with a clearly associated, rendered quote card. Browser tests use a mock X feed. Compatibility with the current signed-in X layout remains unverified.
+The adapter recognizes English and Indonesian timeline labels and depends on the rendered X layout. It skips known replies in feeds, surrounding posts on status pages, collapsed posts, and cards with ambiguous structure. Whataboutism and Strawman can compare the main post with a clearly associated, rendered quote card. Browser tests use a mock X feed. Compatibility with the current signed-in X layout remains unverified.
 
 The popup counts each analyzed post revision and each of its detected categories once per tab document while the revision is in the bounded cache. Changes to a quote can update the annotation without recounting the main post. Both totals reset with the browser session.
 

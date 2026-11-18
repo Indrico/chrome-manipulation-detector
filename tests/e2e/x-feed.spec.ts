@@ -129,7 +129,7 @@ test("handles infinite inserts, node reuse, feed replacements and SPA navigation
   extensionContext,
   popup,
 }) => {
-  const feed = await openTimeline(extensionContext, "/fixture/status/21");
+  const feed = await openTimeline(extensionContext, "/explore");
   await appendPosts(feed, [{ id: "21", text: adHominemText }]);
   await expect(popup.locator("#posts")).toHaveText("0");
   await feed.evaluate(() => history.pushState({}, "", "/home"));
