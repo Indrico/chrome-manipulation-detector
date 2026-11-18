@@ -31,6 +31,8 @@ const exportFeedback =
   document.querySelector<HTMLButtonElement>("#export-feedback")!;
 const clearFeedback =
   document.querySelector<HTMLButtonElement>("#clear-feedback")!;
+const feedbackDisclosure =
+  document.querySelector<HTMLElement>(".feedback summary")!;
 
 let settings: Settings | undefined;
 let feedback: FeedbackRecord[] = [];
@@ -81,6 +83,13 @@ function renderTotals(value: unknown) {
 
 function renderFeedback(value: unknown) {
   feedback = feedbackSchema.safeParse(value).data ?? [];
+  if (
+    !feedback.length &&
+    (document.activeElement === clearFeedback ||
+      document.activeElement === exportFeedback)
+  ) {
+    feedbackDisclosure.focus({ preventScroll: true });
+  }
   exportFeedback.disabled = clearFeedback.disabled = !feedback.length;
 }
 

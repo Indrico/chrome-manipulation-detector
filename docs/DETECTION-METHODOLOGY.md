@@ -52,6 +52,16 @@ An initial Phase 3 run in Chromium 159 on Windows with an Intel Core i7-9750H me
 
 A Phase 4 run using the same fixture and hardware measured 11.7 ms median and 12.3 ms p95. Post-workload renderer heap was 2.64 MiB with detection paused and 3.50 MiB with detection enabled.
 
+For the Phase 5 prerelease, the same workload ran three times in Chromium 159 on Windows with an Intel Core i7-9750H. Each run measured 20 annotation insertions.
+
+| Run | Median latency | p95 latency | Renderer heap paused | Renderer heap enabled |
+| --- | -------------: | ----------: | -------------------: | --------------------: |
+| 1   |        11.8 ms |     12.2 ms |             2.64 MiB |              3.70 MiB |
+| 2   |        11.7 ms |     11.9 ms |             2.64 MiB |              3.51 MiB |
+| 3   |        11.7 ms |     12.2 ms |             2.64 MiB |              3.50 MiB |
+
+A separate regression recycles the same DOM cards through 600 distinct posts. It checks recent-revision deduplication, eviction from the 500-entry cache, and annotation cleanup when detection is paused or the route changes.
+
 ## Limitations
 
 - The rules recognize selected clause structures. Implicit premises, unmarked sarcasm, creative spelling, and indirect forms of attack or pressure can escape detection.

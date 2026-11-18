@@ -26,6 +26,7 @@ type TrackedPost = {
   complete: boolean;
   running: boolean;
   generation: number;
+  annotationOpen: boolean;
   annotation?: HTMLElement;
 };
 
@@ -142,6 +143,11 @@ export function createFeedMonitor(
 
   function removeAnnotation(state: TrackedPost) {
     if (!state.annotation) return;
+    state.annotationOpen =
+      state.annotation.shadowRoot?.querySelector("details")?.open ?? false;
+    if (document.activeElement === state.annotation) {
+      state.post.focusTarget.focus({ preventScroll: true });
+    }
     byAnnotation.delete(state.annotation);
     state.annotation.remove();
     delete state.annotation;
@@ -241,6 +247,7 @@ export function createFeedMonitor(
         intersecting: false,
         running: false,
         generation: 0,
+        annotationOpen: false,
       };
       tracked.set(card, next);
       byBody.set(post.body, next);
@@ -362,6 +369,7 @@ export function createFeedMonitor(
     if (!matches.length) return;
     const annotation = createAnnotation(
       matches,
+      state.annotationOpen,
       () => {
         const id = state.post.id;
         remember(dismissed, id, true);

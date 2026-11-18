@@ -7,7 +7,7 @@ import { extensionDirectory, test } from "../support/extension-fixture";
 
 declare const chrome: typeof browser;
 
-test("production manifest requests local storage and bundles a Manifest V3 popup", async () => {
+test("production manifest restricts site access and bundles local assets and notices", async () => {
   const manifest = JSON.parse(
     await readFile(resolve(extensionDirectory, "manifest.json"), "utf8"),
   );
@@ -16,6 +16,19 @@ test("production manifest requests local storage and bundles a Manifest V3 popup
   expect(manifest.permissions).toEqual(["storage"]);
   expect(manifest.action.default_popup).toBe("popup.html");
   expect(manifest.host_permissions).toBeUndefined();
+  expect(manifest.externally_connectable).toBeUndefined();
+  expect(manifest.content_security_policy.extension_pages).toContain(
+    "connect-src 'none'",
+  );
+  expect(
+    await readFile(resolve(extensionDirectory, "LICENSE"), "utf8"),
+  ).toContain("Manipulation Detector contributors");
+  expect(
+    await readFile(resolve(extensionDirectory, "notices/wxt-LICENSE"), "utf8"),
+  ).toContain("Copyright (c) 2023 Aaron");
+  expect(
+    await readFile(resolve(extensionDirectory, "notices/x.md"), "utf8"),
+  ).toContain("zod");
   expect(manifest.content_scripts).toEqual([
     expect.objectContaining({
       matches: ["https://x.com/*"],

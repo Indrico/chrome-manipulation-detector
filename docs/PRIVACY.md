@@ -5,3 +5,5 @@ Manipulation Detector is an educational Chrome extension. It runs a content scri
 Chrome local extension storage holds preferences and optional feedback counts grouped by detection category and predefined reason. Chrome session storage holds the total number of post revisions analyzed and patterns detected. Post text, quote text, excerpts, post IDs, URLs, author details, and browsing history stay out of extension storage. The tab keeps a bounded in-memory cache of post IDs, text and context fingerprints, and evidence offsets to avoid repeated work. Displayed excerpts come from the main post.
 
 To delete saved preferences, choose **Atur ulang pengaturan** in the popup. Under **Umpan balik lokal**, choose **Hapus umpan balik** to clear feedback or **Ekspor JSON** to download the counts manually. The extension never uploads the export. Chrome clears local extension storage when you remove the extension.
+
+Submitting feedback requires an interaction with the annotation control. Production extension pages restrict network connections, and the content script reads eligible text from the rendered page.

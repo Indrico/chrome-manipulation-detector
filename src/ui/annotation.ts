@@ -37,16 +37,23 @@ function feedbackForm(
   }
   label.append(select);
   const button = element("button", "Simpan");
-  button.type = "submit";
+  button.type = "button";
   const status = element("p", "");
   status.setAttribute("role", "status");
   form.append(label, button, status);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     event.stopPropagation();
-    if (button.disabled || !Object.hasOwn(feedbackReasons, select.value))
+  });
+  button.addEventListener("click", (event) => {
+    if (
+      !event.isTrusted ||
+      button.ariaDisabled === "true" ||
+      !select.reportValidity() ||
+      !Object.hasOwn(feedbackReasons, select.value)
+    )
       return;
-    button.disabled = true;
+    button.ariaDisabled = "true";
     void (async () => {
       const saved = await save({
         patternId,
@@ -55,7 +62,7 @@ function feedbackForm(
       status.textContent = saved
         ? "Umpan balik disimpan di perangkat."
         : "Umpan balik gagal disimpan.";
-      button.disabled = false;
+      button.removeAttribute("aria-disabled");
     })();
   });
   return form;
@@ -63,6 +70,7 @@ function feedbackForm(
 
 export function createAnnotation(
   results: readonly DetectionResult[],
+  open: boolean,
   dismiss: () => void,
   save: (entry: FeedbackEntry) => Promise<boolean>,
 ): HTMLElement {
@@ -76,6 +84,7 @@ export function createAnnotation(
   }
   root.adoptedStyleSheets = [sheet];
   const disclosure = document.createElement("details");
+  disclosure.open = open;
   disclosure.append(
     element("summary", `Kemungkinan pola retorika (${results.length})`),
   );
@@ -101,7 +110,9 @@ export function createAnnotation(
   }
   const button = element("button", "Tutup anotasi");
   button.type = "button";
-  button.addEventListener("click", dismiss);
+  button.addEventListener("click", (event) => {
+    if (event.isTrusted) dismiss();
+  });
   disclosure.append(
     element("p", "Teks ini saja belum cukup untuk menyimpulkan niat penulis."),
     button,

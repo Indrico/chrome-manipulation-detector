@@ -12,6 +12,7 @@
     "postinstall": "wxt prepare",
     "dev": "wxt --browser chrome",
     "build": "wxt build --browser chrome",
+    "package:chrome": "wxt zip --browser chrome",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "typecheck": "wxt prepare && tsc --noEmit",

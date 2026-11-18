@@ -4,7 +4,9 @@ import type { browser } from "wxt/browser";
 
 declare const chrome: typeof browser;
 
-export const extensionDirectory = resolve(".output/chrome-mv3");
+export const extensionDirectory = resolve(
+  process.env.MD_EXTENSION_PATH ?? ".output/chrome-mv3",
+);
 
 export const test = base.extend<{
   extensionContext: BrowserContext;
