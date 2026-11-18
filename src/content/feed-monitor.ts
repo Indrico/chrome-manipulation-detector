@@ -63,13 +63,25 @@ function isVisible(body: HTMLElement): boolean {
   );
 }
 
+function placeAnnotation(body: HTMLElement, annotation: HTMLElement) {
+  if (annotation.nextElementSibling === body) return;
+  const parent = body.parentElement;
+  if (annotation.isConnected && parent?.moveBefore) {
+    parent.moveBefore(annotation, body);
+    return;
+  }
+  const focused = annotation.shadowRoot?.activeElement;
+  body.before(annotation);
+  if (focused instanceof HTMLElement) focused.focus({ preventScroll: true });
+}
+
 export function createFeedMonitor(
   adapter: PlatformAdapter,
   reportTotals: (delta: SessionTotals) => void,
   saveFeedback: (entry: FeedbackEntry) => Promise<boolean>,
 ) {
   const tracked = new Map<HTMLElement, TrackedPost>();
-  const byBody = new WeakMap<Element, TrackedPost>();
+  const byBody = new WeakMap<Node, TrackedPost>();
   const byAnnotation = new WeakMap<Node, TrackedPost>();
   const pending = new Set<HTMLElement>();
   const revisions = new Map<string, CachedRevision>();
@@ -99,17 +111,34 @@ export function createFeedMonitor(
   const feedObserver = new MutationObserver((mutations) => {
     const changed = new Set<HTMLElement>();
     for (const mutation of mutations) {
+      if (byAnnotation.has(mutation.target)) continue;
+      const siteNodes = [
+        ...mutation.addedNodes,
+        ...mutation.removedNodes,
+      ].filter((node) => {
+        const owner = byAnnotation.get(node);
+        if (!owner) return true;
+        if (
+          owner.annotation === node &&
+          owner.annotation.nextElementSibling !== owner.post.body
+        )
+          pending.add(owner.post.card);
+        return false;
+      });
+      if (mutation.type === "childList") {
+        // Ignore our own DOM writes. A new sibling, such as X's translation
+        // control, can move the insertion point without changing the text.
+        if (!siteNodes.length) continue;
+        const state = mutation.nextSibling && byBody.get(mutation.nextSibling);
+        if (state?.annotation) pending.add(state.post.card);
+      }
       if (
         mutation.target instanceof HTMLElement &&
         tracked.has(mutation.target)
       )
         changed.add(mutation.target);
       for (const card of adapter.changedCards(mutation)) changed.add(card);
-      for (const node of mutation.removedNodes) {
-        const owner = byAnnotation.get(node);
-        if (owner) changed.add(owner.post.card);
-      }
-      for (const node of [...mutation.addedNodes, ...mutation.removedNodes]) {
+      for (const node of siteNodes) {
         for (const card of adapter.findCards(node)) changed.add(card);
       }
     }
@@ -118,7 +147,7 @@ export function createFeedMonitor(
       if (state) invalidate(state);
       pending.add(card);
     }
-    if (changed.size) schedule();
+    if (pending.size) schedule();
   });
   const viewport = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -149,7 +178,6 @@ export function createFeedMonitor(
     if (document.activeElement === state.annotation) {
       state.post.focusTarget.focus({ preventScroll: true });
     }
-    byAnnotation.delete(state.annotation);
     state.annotation.remove();
     delete state.annotation;
   }
@@ -258,6 +286,7 @@ export function createFeedMonitor(
       return;
     }
     state.post = post;
+    if (state.annotation) placeAnnotation(post.body, state.annotation);
     if (state.intersecting && !state.complete && !state.running)
       void analyzeVisible(state);
   }
@@ -384,9 +413,9 @@ export function createFeedMonitor(
       },
       saveFeedback,
     );
-    state.post.card.after(annotation);
     state.annotation = annotation;
     byAnnotation.set(annotation, state);
+    placeAnnotation(state.post.body, annotation);
   }
 
   return {
