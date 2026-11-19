@@ -65,6 +65,17 @@ function ownedBy(element: Element, card: HTMLElement) {
   );
 }
 
+function isRendered(element: HTMLElement): boolean {
+  return (
+    !element.closest('[hidden], [aria-hidden="true"]') &&
+    (element.checkVisibility?.({
+      opacityProperty: true,
+      visibilityProperty: true,
+    }) ??
+      element.getClientRects().length > 0)
+  );
+}
+
 function findAnnotationAnchor(card: HTMLElement, body: HTMLElement) {
   for (const control of card.querySelectorAll<HTMLElement>(
     selectors.translationControl,
@@ -79,17 +90,15 @@ function findAnnotationAnchor(card: HTMLElement, body: HTMLElement) {
       control.contains(body) ||
       !(
         control.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING
-      )
+      ) ||
+      !isRendered(control)
     )
       continue;
 
-    // Mount outside wrappers that belong solely to the translation control.
+    // Use the translation branch beside the post text, outside the toolbar
+    // even when it contains other controls such as translation settings.
     let row = control;
-    while (
-      row.parentElement &&
-      !row.parentElement.contains(body) &&
-      row.parentElement.textContent.trim() === label
-    )
+    while (row.parentElement && !row.parentElement.contains(body))
       row = row.parentElement;
     return row;
   }
@@ -158,7 +167,13 @@ function changedCards(mutation: MutationRecord): HTMLElement[] {
     mutation.type === "attributes" &&
     (mutation.attributeName === "style" || mutation.attributeName === "class")
   ) {
-    return element.querySelector(selectors.quote) ? [card] : [];
+    const changedDetailTextVisibility =
+      statusPath.test(card.ownerDocument.location?.pathname ?? "") &&
+      (element.matches(selectors.text) ||
+        element.querySelector(selectors.text));
+    return element.querySelector(selectors.quote) || changedDetailTextVisibility
+      ? [card]
+      : [];
   }
   if (
     element === card ||
@@ -206,16 +221,26 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
     );
   if (own(selectors.collapsed).length) return null;
 
-  const times = own<HTMLTimeElement>("time");
-  const anchor =
-    times.length === 1
-      ? times[0]?.closest<HTMLAnchorElement>("a[href]")
+  const links = own<HTMLTimeElement>("time").map((time) => {
+    const link = time.closest<HTMLAnchorElement>("a[href]");
+    return link && ownedBy(link, card) && !link.closest(selectors.text)
+      ? link
       : undefined;
-  if (!anchor || !ownedBy(anchor, card)) return null;
+  });
+  const anchor = statusInUrl
+    ? links.find((link) => link && statusId(link) === statusInUrl)
+    : links.length === 1
+      ? links[0]
+      : undefined;
+  if (!anchor) return null;
   const id = statusId(anchor);
-  if (!id || (statusInUrl && id !== statusInUrl)) return null;
+  if (!id) return null;
 
-  const bodies = own(selectors.text);
+  const candidates = own(selectors.text);
+  const bodies =
+    statusInUrl && candidates.length > 1
+      ? candidates.filter(isRendered)
+      : candidates;
   const body = bodies.length === 1 ? bodies[0] : undefined;
   if (!body) return null;
 

@@ -64,7 +64,7 @@ function isVisible(body: HTMLElement): boolean {
 }
 
 function placeAnnotation(post: LocatedPost, annotation: HTMLElement) {
-  const anchor = post.annotationAnchor.isConnected
+  const anchor = post.card.contains(post.annotationAnchor)
     ? post.annotationAnchor
     : post.body;
   if (annotation.nextElementSibling === anchor) return;
