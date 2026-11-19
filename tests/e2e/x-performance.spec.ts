@@ -5,6 +5,7 @@ import {
   adHominemText,
   annotation,
   appendPosts,
+  localModelText,
   openTimeline,
 } from "../support/x-timeline";
 
@@ -27,11 +28,15 @@ async function settlePaint(page: Page) {
   );
 }
 
-async function scrollWorkload(page: Page, enabled: boolean) {
+async function scrollWorkload(
+  page: Page,
+  enabled: boolean,
+  text = adHominemText,
+) {
   for (let round = 0; round < 3; round++) {
     const batch = Array.from({ length: 25 }, (_, index) => ({
       id: String(5000 + round * 25 + index),
-      text: adHominemText,
+      text,
     }));
     await appendPosts(page, batch);
     for (const post of batch.filter((_, index) => index % 5 === 0)) {
@@ -44,6 +49,23 @@ async function scrollWorkload(page: Page, enabled: boolean) {
     await settlePaint(page);
   }
 }
+
+test("records renderer heap with the local model enabled", async ({
+  extensionContext,
+  popup,
+}) => {
+  const toggle = popup.getByRole("checkbox", {
+    name: "Model lokal (eksperimental)",
+  });
+  await toggle.check();
+  await expect(toggle).toBeEnabled();
+  const feed = await openTimeline(extensionContext);
+  const before = await rendererHeap(feed);
+  await scrollWorkload(feed, true, localModelText);
+  const after = await rendererHeap(feed);
+  console.log("Mock X local model renderer heap (bytes)", { before, after });
+  expect(after).toBeGreaterThan(0);
+});
 
 test("records annotation latency and renderer heap on a controlled X fixture", async ({
   extensionContext,

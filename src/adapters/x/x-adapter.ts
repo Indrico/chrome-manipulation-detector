@@ -25,6 +25,7 @@ const translationLabels = new Set([
 const statusPath = /^(?:\/[a-z0-9_]{1,15}|\/i\/web)\/status\/(\d{1,25})\/?$/i;
 const visibleReplyLabel = /^(?:replying to\b|membalas\b)/iu;
 const postText = [selectors.text, selectors.conversationText].join(", ");
+const feedCells = `${selectors.cell}, ${selectors.conversationCell}`;
 const structural = [
   postText,
   selectors.reply,
@@ -58,6 +59,16 @@ function supportsXSurface(
   if (!isSearchPath(url.pathname)) return false;
   const filter = new URLSearchParams(url.search).get("f");
   return !filter || filter === "top" || filter === "live";
+}
+
+function supportsSearchLink(tab: HTMLAnchorElement) {
+  if (!tab.hasAttribute("href")) return false;
+  try {
+    const url = new URL(tab.href);
+    return isSearchPath(url.pathname) && supportsXSurface(url);
+  } catch {
+    return false;
+  }
 }
 
 function ownedBy(element: Element, card: HTMLElement) {
@@ -119,29 +130,42 @@ function findFeed(document: Document): HTMLElement | null {
       ) ?? column
     );
   }
-  if (!column) return null;
-  const tabs = column.querySelectorAll(selectors.selectedTab);
+  const root = column ?? document.querySelector<HTMLElement>(selectors.main);
+  if (!root) return null;
+  const tabs = [
+    ...root.querySelectorAll<HTMLElement>(selectors.selectedTab),
+  ].filter((tab) => !tab.closest(selectors.secondary) && isRendered(tab));
   const tab = tabs.length === 1 ? tabs[0] : undefined;
   const labels = [tab?.getAttribute("aria-label"), tab?.textContent];
-  const supportedTabs = isSearchPath(url.pathname) ? searchTabs : homeTabs;
-  if (
-    !labels.some((label) =>
-      supportedTabs.has(label?.trim().toLowerCase() ?? ""),
-    )
-  )
-    return null;
+  const search = isSearchPath(url.pathname);
+  const searchFeeds = search
+    ? Array.from(
+        root.querySelectorAll<HTMLElement>(selectors.semanticSearchFeed),
+      ).filter((feed) => !feed.closest(selectors.secondary) && isRendered(feed))
+    : [];
+  const semanticSearch = searchFeeds.length === 1 ? searchFeeds[0] : undefined;
+  const supportedTabs = search ? searchTabs : homeTabs;
+  const supportedTab =
+    semanticSearch && tab instanceof HTMLAnchorElement
+      ? supportsSearchLink(tab)
+      : labels.some((label) =>
+          supportedTabs.has(
+            label?.trim().replace(/\s+/gu, " ").toLowerCase() ?? "",
+          ),
+        );
+  if (!supportedTab) return null;
+  if (semanticSearch) return semanticSearch;
 
   const regions = [
-    ...column.querySelectorAll<HTMLElement>(selectors.feed),
+    ...root.querySelectorAll<HTMLElement>(selectors.feed),
   ].filter(
     (region) =>
-      !region.parentElement?.closest(selectors.feed) ||
-      !column.contains(region.parentElement.closest(selectors.feed)),
+      !region.closest(selectors.secondary) &&
+      (!region.parentElement?.closest(selectors.feed) ||
+        !root.contains(region.parentElement.closest(selectors.feed))),
   );
   if (regions.length === 1) return regions[0] ?? null;
-  const populated = regions.filter((region) =>
-    region.querySelector(selectors.cell),
-  );
+  const populated = regions.filter((region) => region.querySelector(feedCells));
   return populated.length === 1 ? (populated[0] ?? null) : null;
 }
 
@@ -164,9 +188,7 @@ function changedCards(mutation: MutationRecord): HTMLElement[] {
   if (!element) return [];
   const changedNodes = [...mutation.addedNodes, ...mutation.removedNodes];
   if (!card) {
-    const cell = element.closest(
-      `${selectors.cell}, ${selectors.conversationCell}`,
-    );
+    const cell = element.closest(feedCells);
     return cell && changedNodes.some((node) => findCards(node).length > 0)
       ? findCards(cell)
       : [];
@@ -201,14 +223,25 @@ function changedCards(mutation: MutationRecord): HTMLElement[] {
   return [];
 }
 
-function isFeedCard(card: HTMLElement, feed: HTMLElement): boolean {
-  const cell = card.closest(selectors.cell);
+function isFeedCard(
+  card: HTMLElement,
+  feed: HTMLElement,
+  cellSelector: string,
+  cardSelector: string,
+): boolean {
+  const cell = card.closest(cellSelector);
   if (!cell || !feed.contains(cell)) return false;
+  if (card.closest(selectors.secondary)) return false;
   const enclosingQuote = card.closest(selectors.quote);
-  if (enclosingQuote && cell.contains(enclosingQuote)) return false;
-  const topCards = [
-    ...cell.querySelectorAll<HTMLElement>(selectors.legacyCard),
-  ].filter((candidate) => !candidate.parentElement?.closest(selectors.card));
+  const navigationLink =
+    cellSelector === selectors.conversationCell &&
+    enclosingQuote?.matches(selectors.navigationLink) &&
+    !card.closest(selectors.explicitQuote);
+  if (enclosingQuote && cell.contains(enclosingQuote) && !navigationLink)
+    return false;
+  const topCards = [...cell.querySelectorAll<HTMLElement>(cardSelector)].filter(
+    (candidate) => !candidate.parentElement?.closest(selectors.card),
+  );
   return topCards.length === 1 && topCards[0] === card;
 }
 
@@ -220,17 +253,24 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
   )?.[1];
   const semanticDetail =
     !!statusInUrl && feed.id.startsWith(conversationPrefix);
+  const legacyFeed =
+    !statusInUrl &&
+    isFeedCard(card, feed, selectors.cell, selectors.legacyCard);
+  const semanticFeed =
+    !statusInUrl &&
+    !legacyFeed &&
+    isFeedCard(card, feed, selectors.conversationCell, selectors.card);
   if (semanticDetail) {
     const cell = card.closest(selectors.conversationCell);
     if (cell?.parentElement?.parentElement !== feed) return null;
-  } else if (!card.matches(selectors.legacyCard)) {
+  } else if (statusInUrl) {
+    if (!card.matches(selectors.legacyCard)) return null;
+  } else if (!legacyFeed && !semanticFeed) {
     return null;
   }
   if (statusInUrl) {
     const enclosingQuote = card.closest(selectors.quote);
     if (enclosingQuote && feed.contains(enclosingQuote)) return null;
-  } else if (!isFeedCard(card, feed)) {
-    return null;
   }
 
   const own = <T extends HTMLElement>(selector: string) =>
@@ -239,19 +279,20 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
     );
   if (own(selectors.collapsed).length) return null;
 
-  const textSelector = semanticDetail
-    ? selectors.conversationText
-    : selectors.text;
-  const timestamps = semanticDetail
+  const semantic = semanticDetail || semanticFeed;
+  const textSelector = semantic ? selectors.conversationText : selectors.text;
+  const timestamps = semantic
     ? own<HTMLAnchorElement>(selectors.conversationTimestamp)
     : own<HTMLTimeElement>("time").map((time) =>
         time.closest<HTMLAnchorElement>("a[href]"),
       );
-  const links = timestamps.map((link) =>
-    link && ownedBy(link, card) && !link.closest(textSelector)
-      ? link
-      : undefined,
-  );
+  const links = timestamps
+    .map((link) =>
+      link && ownedBy(link, card) && !link.closest(textSelector)
+        ? link
+        : undefined,
+    )
+    .filter((link) => !semanticFeed || (link && statusId(link)));
   const anchor = statusInUrl
     ? links.find((link) => link && statusId(link) === statusInUrl)
     : links.length === 1
@@ -275,7 +316,7 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
     // Some X layouts place a plain-text reply label beside a profile link.
     const hasReplyLabel = own("div, span").some(
       (element) =>
-        !element.closest(selectors.text) &&
+        !element.closest(textSelector) &&
         visibleReplyLabel.test(element.firstChild?.nodeValue?.trim() ?? ""),
     );
     if (hasReplyLabel) return null;

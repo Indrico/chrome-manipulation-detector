@@ -1,6 +1,6 @@
 {
   "name": "chrome-manipulation-detector",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "description": "Learn to recognize potential rhetorical patterns in social media posts.",
   "license": "MIT",
@@ -18,6 +18,9 @@
     "typecheck": "wxt prepare && tsc --noEmit",
     "test": "vitest run",
     "evaluate": "vitest run tests/integration/evaluation.test.ts --disableConsoleIntercept",
+    "dataset:pilot": "node --experimental-strip-types datasets/manipulation-pilot/validate.ts",
+    "dataset:review": "node --experimental-strip-types datasets/manipulation-pilot/review.ts",
+    "model:pilot": "node --experimental-strip-types datasets/manipulation-pilot/train.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

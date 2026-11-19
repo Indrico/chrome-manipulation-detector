@@ -7,6 +7,7 @@ import type { PatternId } from "../models/pattern";
 import type { PostInput } from "../models/post";
 import { patternNames, supportedPatternIds } from "../data/patterns";
 import { extractContext } from "./context-extractor";
+import { detectWithLocalModel, type LocalModel } from "./local-model";
 import { detectAdHominem } from "../detectors/ad-hominem";
 import { detectFalseDilemma } from "../detectors/false-dilemma";
 import { detectGuiltTripping } from "../detectors/guilt-tripping";
@@ -50,6 +51,7 @@ function strongest(
 export function analyzePost(
   input: PostInput,
   enabledPatternIds: readonly PatternId[] = supportedPatternIds,
+  model?: LocalModel,
 ): DetectionResult[] {
   const enabled = supportedPatternIds.filter((id) =>
     enabledPatternIds.includes(id),
@@ -57,9 +59,19 @@ export function analyzePost(
   if (!input.text.trim() || enabled.length === 0) return [];
 
   const context = extractContext(input);
+  const candidates = new Map(
+    enabled.map((id) => [id, strongest(detectors[id](context))]),
+  );
+  const learned = model
+    ? detectWithLocalModel(
+        context,
+        enabled.filter((id) => !candidates.get(id)),
+        model,
+      )
+    : undefined;
   const results: DetectionResult[] = [];
   for (const id of enabled) {
-    const candidate = strongest(detectors[id](context));
+    const candidate = candidates.get(id) ?? learned?.get(id);
     if (!candidate) continue;
 
     results.push(

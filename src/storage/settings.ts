@@ -8,6 +8,7 @@ export const settingsSchema = z.strictObject({
   version: z.literal(1),
   enabled: z.boolean(),
   showAnnotations: z.boolean(),
+  localModel: z.boolean().optional(),
   categories: categoriesSchema,
 });
 
@@ -46,6 +47,7 @@ export function applySettingsPatch(
     ...current,
     enabled: patch.enabled ?? current.enabled,
     showAnnotations: patch.showAnnotations ?? current.showAnnotations,
+    ...(patch.localModel === undefined ? {} : { localModel: patch.localModel }),
     categories: { ...current.categories, ...patch.categories },
   };
 }

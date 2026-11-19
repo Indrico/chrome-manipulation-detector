@@ -21,6 +21,7 @@ const preferences =
   document.querySelector<HTMLFieldSetElement>("#preferences")!;
 const enabled = document.querySelector<HTMLInputElement>("#enabled")!;
 const annotations = document.querySelector<HTMLInputElement>("#annotations")!;
+const localModel = document.querySelector<HTMLInputElement>("#local-model")!;
 const categories = document.querySelector<HTMLFieldSetElement>("#categories")!;
 const reset = document.querySelector<HTMLButtonElement>("#reset")!;
 const status = document.querySelector<HTMLParagraphElement>("#status")!;
@@ -128,6 +129,7 @@ function render() {
   if (!settings) return;
   enabled.checked = settings.enabled;
   annotations.checked = settings.showAnnotations;
+  localModel.checked = settings.localModel === true;
   for (const { patternId, control } of categoryControls) {
     control.checked = settings.categories[patternId] !== false;
   }
@@ -174,6 +176,12 @@ enabled.addEventListener("change", () =>
 annotations.addEventListener("change", () =>
   request(
     { type: "settings:patch", patch: { showAnnotations: annotations.checked } },
+    "Pengaturan tersimpan.",
+  ),
+);
+localModel.addEventListener("change", () =>
+  request(
+    { type: "settings:patch", patch: { localModel: localModel.checked } },
     "Pengaturan tersimpan.",
   ),
 );

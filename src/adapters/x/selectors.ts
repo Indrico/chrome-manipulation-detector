@@ -4,7 +4,10 @@ export const conversationPrefix = "urt:conversation:";
 
 export const selectors = {
   column: '[data-testid="primaryColumn"]',
-  feed: 'section[role="region"], section[aria-labelledby], section[aria-label]',
+  main: "main",
+  feed: '[role="feed"], [role="region"], section[aria-labelledby], section[aria-label]',
+  semanticSearchFeed: 'section [id^="urt:search:"]',
+  secondary: 'aside, [role="complementary"]',
   selectedTab: '[role="tab"][aria-selected="true"]',
   cell: '[data-testid="cellInnerDiv"]',
   card: "article",
@@ -13,6 +16,7 @@ export const selectors = {
   conversationCell: "li[data-index]",
   conversationText: 'div[dir="auto"][lang]',
   conversationTimestamp: "a[data-base-ui-tooltip-trigger][href]",
+  navigationLink: 'div[role="link"][data-navigation-stop]',
   translationControl: 'button, [role="button"]',
   explicitQuote:
     '[data-testid="quoteTweet"], [data-slot="embedded-tweet-frame"]',

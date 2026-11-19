@@ -23,6 +23,85 @@ async function selectSearchTab(page: Page, name: string, path: string) {
   );
 }
 
+for (const path of ["/home", "/search?q=fixture&f=live"]) {
+  test(`handles semantic X cards on ${path}`, async ({
+    extensionContext,
+    popup,
+  }) => {
+    const page = await openTimeline(extensionContext, path);
+    await page.locator("main").evaluate(
+      (main, { text, search }) => {
+        main.removeAttribute("data-testid");
+        const selected = main.querySelector(
+          '[role="tab"][aria-selected="true"]',
+        )!;
+        if (search) {
+          const tab = document.createElement("a");
+          tab.href = "/search?q=fixture&f=live";
+          tab.setAttribute("role", "tab");
+          tab.setAttribute("aria-selected", "true");
+          tab.setAttribute("aria-current", "page");
+          tab.textContent = "Filter Terbaru";
+          selected.replaceWith(tab);
+        } else {
+          selected.textContent = "For \n you";
+        }
+        const list = document.createElement("ol");
+        if (!search) list.setAttribute("role", "feed");
+        for (const [index, id] of ["7401", "7402", "7403"].entries()) {
+          const cell = document.createElement("li");
+          cell.dataset.index = String(index);
+          const article = document.createElement("article");
+          if (index === 1) {
+            const reply = document.createElement("span");
+            reply.textContent = "Membalas pengguna lain";
+            article.append(reply);
+          }
+          const body = document.createElement("div");
+          body.dir = "auto";
+          body.lang = "in";
+          body.textContent = text;
+          const timestamp = document.createElement("a");
+          timestamp.dataset.baseUiTooltipTrigger = "";
+          timestamp.href = `/fixture/status/${id}`;
+          timestamp.textContent = "1m";
+          article.append(body, timestamp);
+          if (search) {
+            const link = document.createElement("div");
+            link.dataset.navigationStop = "";
+            link.setAttribute("role", "link");
+            link.append(article);
+            cell.append(link);
+          } else {
+            cell.append(article);
+          }
+          list.append(cell);
+        }
+        // The third card is inside a widget rather than the main feed.
+        const sidebar = document.createElement("aside");
+        sidebar.append(list.lastElementChild!);
+        list.append(sidebar);
+        const section = main.querySelector("section")!;
+        if (search) {
+          const searchFeed = document.createElement("div");
+          searchFeed.id = "urt:search:fixture:default";
+          searchFeed.append(list);
+          section.replaceChildren(searchFeed);
+        } else {
+          section.replaceWith(list);
+        }
+      },
+      { text: adHominemText, search: path.startsWith("/search") },
+    );
+
+    await expect(
+      page.locator('li[data-index="0"]').locator(annotation),
+    ).toBeVisible();
+    await expect(page.locator(annotation)).toHaveCount(1);
+    await expect(popup.locator("#posts")).toHaveText("1");
+  });
+}
+
 test("analyzes visible Top and Latest search posts while preserving session counts and privacy", async ({
   extensionContext,
   popup,

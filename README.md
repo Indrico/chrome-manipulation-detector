@@ -10,6 +10,8 @@ The adapter recognizes English and Indonesian timeline labels and depends on the
 
 The popup counts each analyzed post revision and each of its detected categories once per tab document while the revision is in the bounded cache. Changes to a quote can update the annotation without recounting the main post. Both totals reset with the browser session.
 
+Enable **Model lokal (eksperimental)** in the popup to try additional on-device suggestions for Ad Hominem, False Dilemma, and Guilt Tripping. The setting is off by default. See the [pilot model evaluation](docs/DETECTION-METHODOLOGY.md#experimental-local-model) for results and limits.
+
 ## Install
 
 1. Download the Chrome ZIP and its SHA-256 checksum from [GitHub Releases](https://github.com/Indrico/chrome-manipulation-detector/releases). Verify the ZIP against the checksum, then extract it.
@@ -46,6 +48,6 @@ On Windows PowerShell, use `npm.cmd` and `npx.cmd` if script execution policy bl
 
 ## Detection, privacy, and license
 
-See the [detection methodology and synthetic evaluation](docs/DETECTION-METHODOLOGY.md), [privacy policy](docs/PRIVACY.md), and [MIT license](LICENSE). The license covers original project code. Third-party datasets, if introduced, will carry their own terms.
+See the [detection methodology and synthetic evaluation](docs/DETECTION-METHODOLOGY.md), [privacy policy](docs/PRIVACY.md), and [MIT license](LICENSE). The license covers original project code. The [pilot dataset](datasets/manipulation-pilot/README.md) documents third-party sources and their terms.
 
 See the [architecture](docs/ARCHITECTURE.md) and [contribution guide](docs/CONTRIBUTING.md) for code boundaries and release checks.

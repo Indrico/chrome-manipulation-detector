@@ -3,3 +3,4 @@ node_modules/
 .wxt/
 playwright-report/
 test-results/
+/datasets/manipulation-pilot/local/

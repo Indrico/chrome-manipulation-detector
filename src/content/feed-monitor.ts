@@ -3,6 +3,8 @@ import type {
   PlatformAdapter,
 } from "../adapters/platform-adapter";
 import { analyzePost } from "../core/detection-engine";
+import { modelPatterns, unpackLocalModel } from "../core/local-model";
+import packedModel from "../data/local-model.json";
 import { contextualPatterns, supportedPatternIds } from "../data/patterns";
 import type { DetectionResult } from "../models/detection-result";
 import type { PatternId } from "../models/pattern";
@@ -19,6 +21,7 @@ type CachedRevision = {
   results: Map<PatternId, CachedMatch | null>;
   countedPatterns: Set<PatternId>;
   contextFingerprint?: string;
+  localModel?: boolean;
 };
 type TrackedPost = {
   post: LocatedPost;
@@ -34,6 +37,7 @@ const maxCachedRevisions = 500;
 const maxPostLength = 10_000;
 const maxCardsPerFrame = 8;
 const frameBudgetMs = 4;
+const localModel = unpackLocalModel(packedModel);
 
 function remember<K, V>(cache: Map<K, V>, key: K, value: V) {
   cache.delete(key);
@@ -365,13 +369,22 @@ export function createFeedMonitor(
       delta.posts++;
     }
     const { results, countedPatterns } = cached;
+    const useLocalModel = settings?.localModel === true;
+    if (cached.localModel !== useLocalModel) {
+      for (const id of modelPatterns) results.delete(id);
+      cached.localModel = useLocalModel;
+    }
     if (cached.contextFingerprint !== contextFingerprint) {
       for (const id of contextualPatterns) results.delete(id);
       cached.contextFingerprint = contextFingerprint;
     }
     const missing = activePatterns.filter((id) => !results.has(id));
     for (const id of missing) results.set(id, null);
-    for (const result of analyzePost({ text, context }, missing)) {
+    for (const result of analyzePost(
+      { text, context },
+      missing,
+      useLocalModel ? localModel : undefined,
+    )) {
       if (result.confidenceLevel === "insufficient_context") continue;
       const {
         patternId,
@@ -434,6 +447,7 @@ export function createFeedMonitor(
       const nextPatterns = enabledPatterns(next, supportedPatternIds);
       const changed =
         next.showAnnotations !== settings?.showAnnotations ||
+        (next.localModel === true) !== (settings?.localModel === true) ||
         nextPatterns.join() !== activePatterns.join();
       settings = next;
       activePatterns = nextPatterns;

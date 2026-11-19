@@ -7,6 +7,8 @@ export const doubleMatchText =
   "Kalau kamu tidak mendukung kebijakan ini, berarti kamu tidak peduli dengan negara.";
 export const benignText = "Angka di tabel ini masih perlu diperiksa.";
 export const annotation = "[data-manipulation-detector]";
+export const localModelText =
+  "Yang nanya detail jadwal lapangan futsal itu clown. Geser, kita dengerin orang yang layak ngomong aja.";
 
 export type MockPost = {
   id: string;

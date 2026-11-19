@@ -7,8 +7,46 @@ import {
   appendPosts,
   benignText,
   doubleMatchText,
+  localModelText,
   openTimeline,
 } from "../support/x-timeline";
+
+test("applies local model settings to a cached visible post without recounting it", async ({
+  extensionContext,
+  popup,
+}) => {
+  const feed = await openTimeline(extensionContext);
+  const toggle = popup.getByRole("checkbox", {
+    name: "Model lokal (eksperimental)",
+  });
+  await expect(toggle).not.toBeChecked();
+  await appendPosts(feed, [{ id: "8000", text: localModelText }]);
+  await expect(popup.locator("#posts")).toHaveText("1");
+  const badge = feed.locator(annotation);
+  await expect(badge).toHaveCount(0);
+
+  await toggle.check();
+  await feed.bringToFront();
+  await expect(badge.locator("summary")).toHaveText("Indikasi Ad Hominem");
+  await badge.locator("summary").click();
+  await expect(badge.getByText(/model lokal eksperimental/)).toBeVisible();
+  await expect(popup.locator("#patterns")).toHaveText("1");
+
+  await toggle.uncheck();
+  await feed.bringToFront();
+  await expect(badge).toHaveCount(0);
+  await toggle.check();
+  await feed.bringToFront();
+  await expect(badge.locator("summary")).toBeVisible();
+  await expect(popup.locator("#posts")).toHaveText("1");
+  await expect(popup.locator("#patterns")).toHaveText("1");
+  expect(await storage(popup, "local")).toMatchObject({
+    settings: { localModel: true },
+  });
+  expect(JSON.stringify(await storage(popup, "local"))).not.toContain(
+    "jadwal lapangan",
+  );
+});
 
 test("annotates visible home posts and keeps interaction and feedback local", async ({
   extensionContext,

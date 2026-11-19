@@ -44,6 +44,24 @@ Each category had zero false positives and false negatives in both splits, givin
 
 Run `npm run evaluate` to reproduce the counts and measure engine time.
 
+## Experimental local model
+
+The opt-in mode supplements the rules for Ad Hominem, False Dilemma, and Guilt Tripping. The three logistic classifiers use hashed word sequences and character trigrams from the existing context pipeline. When a rule provides a result for a category, the engine uses that result. Additional model suggestions carry `possible` confidence, their original excerpt, and an explanation that identifies the model. Scores stay internal. Inference examines at most ten sentences and adjacent pairs in posts up to 800 UTF-16 code units.
+
+The pilot uses 1,200 training rows, 300 validation rows for threshold selection, and 500 held-out rows with draft labels. Metrics exclude ambiguous and insufficient-context labels from the binary counts. On these 500 posts, rules alone produced zero flags for the three pilot categories.
+
+| Pattern        | Hybrid positives matched | Positives missed | False flags |
+| -------------- | -----------------------: | ---------------: | ----------: |
+| Ad Hominem     |                       32 |               19 |          10 |
+| False Dilemma  |                        2 |               32 |           0 |
+| Guilt Tripping |                       11 |               39 |           2 |
+
+The positive matches include 44 synthetic labels and one human-written comment label. In the 200 randomly selected news and forum comments, the hybrid missed all three positive labels and produced six false Ad Hominem flags. These results measure agreement with the pilot labels and show limited transfer to human comments. The pilot did not measure accuracy on live X posts.
+
+Run `npm run model:pilot` with the [complete local pilot dataset](../datasets/manipulation-pilot/README.md) to retrain and evaluate. It writes the quantized coefficients to `src/data/local-model.json` and the evaluation report to `.output/pilot-model-evaluation.json`. The artifact is about 16.8 kB before compression. The extension bundles these coefficients with its code. Dataset records stay in the development workspace.
+
+In a local Node.js run on an Intel Core i7-9750H, the hybrid engine took 0.37 ms at p95 over 4,000 warmed evaluations. The Chromium mock-feed test with the model enabled measured renderer JavaScript heap after garbage collection at 1.34 MiB before the workload and 3.61 MiB after three 25-card batches. The heap readings include the fixture and the extension.
+
 ## Mock X browser baseline
 
 After building the extension, run `npm run test:e2e -- tests/e2e/x-performance.spec.ts`. This benchmark uses 20 visible insertions for latency and three 25-card batches for the scroll and heap workload.
