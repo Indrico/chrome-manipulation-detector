@@ -1,6 +1,6 @@
 {
   "name": "chrome-manipulation-detector",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "description": "Learn to recognize potential rhetorical patterns in social media posts.",
   "license": "MIT",

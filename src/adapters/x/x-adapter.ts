@@ -1,6 +1,6 @@
 import type { LocatedPost, PlatformAdapter } from "../platform-adapter";
 import type { PostContext, PostInput } from "../../models/post";
-import { selectors, xOrigin } from "./selectors";
+import { conversationPrefix, selectors, xOrigin } from "./selectors";
 
 const homeTabs = new Set([
   "for you",
@@ -24,11 +24,13 @@ const translationLabels = new Set([
 ]);
 const statusPath = /^(?:\/[a-z0-9_]{1,15}|\/i\/web)\/status\/(\d{1,25})\/?$/i;
 const visibleReplyLabel = /^(?:replying to\b|membalas\b)/iu;
+const postText = [selectors.text, selectors.conversationText].join(", ");
 const structural = [
-  selectors.text,
+  postText,
   selectors.reply,
   selectors.collapsed,
   selectors.quote,
+  selectors.conversationTimestamp,
   "time",
 ].join(", ");
 
@@ -109,8 +111,15 @@ function findFeed(document: Document): HTMLElement | null {
   const url = document.location;
   if (!url || !supportsXSurface(url)) return null;
   const column = document.querySelector<HTMLElement>(selectors.column);
+  const detailId = statusPath.exec(url.pathname)?.[1];
+  if (detailId) {
+    return (
+      document.querySelector<HTMLElement>(
+        `main section [id^="${conversationPrefix}${detailId}:"]`,
+      ) ?? column
+    );
+  }
   if (!column) return null;
-  if (statusPath.test(url.pathname)) return column;
   const tabs = column.querySelectorAll(selectors.selectedTab);
   const tab = tabs.length === 1 ? tabs[0] : undefined;
   const labels = [tab?.getAttribute("aria-label"), tab?.textContent];
@@ -155,7 +164,9 @@ function changedCards(mutation: MutationRecord): HTMLElement[] {
   if (!element) return [];
   const changedNodes = [...mutation.addedNodes, ...mutation.removedNodes];
   if (!card) {
-    const cell = element.closest(selectors.cell);
+    const cell = element.closest(
+      `${selectors.cell}, ${selectors.conversationCell}`,
+    );
     return cell && changedNodes.some((node) => findCards(node).length > 0)
       ? findCards(cell)
       : [];
@@ -169,8 +180,7 @@ function changedCards(mutation: MutationRecord): HTMLElement[] {
   ) {
     const changedDetailTextVisibility =
       statusPath.test(card.ownerDocument.location?.pathname ?? "") &&
-      (element.matches(selectors.text) ||
-        element.querySelector(selectors.text));
+      (element.matches(postText) || element.querySelector(postText));
     return element.querySelector(selectors.quote) || changedDetailTextVisibility
       ? [card]
       : [];
@@ -197,7 +207,7 @@ function isFeedCard(card: HTMLElement, feed: HTMLElement): boolean {
   const enclosingQuote = card.closest(selectors.quote);
   if (enclosingQuote && cell.contains(enclosingQuote)) return false;
   const topCards = [
-    ...cell.querySelectorAll<HTMLElement>(selectors.card),
+    ...cell.querySelectorAll<HTMLElement>(selectors.legacyCard),
   ].filter((candidate) => !candidate.parentElement?.closest(selectors.card));
   return topCards.length === 1 && topCards[0] === card;
 }
@@ -208,6 +218,14 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
   const statusInUrl = statusPath.exec(
     feed.ownerDocument.location?.pathname ?? "",
   )?.[1];
+  const semanticDetail =
+    !!statusInUrl && feed.id.startsWith(conversationPrefix);
+  if (semanticDetail) {
+    const cell = card.closest(selectors.conversationCell);
+    if (cell?.parentElement?.parentElement !== feed) return null;
+  } else if (!card.matches(selectors.legacyCard)) {
+    return null;
+  }
   if (statusInUrl) {
     const enclosingQuote = card.closest(selectors.quote);
     if (enclosingQuote && feed.contains(enclosingQuote)) return null;
@@ -221,12 +239,19 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
     );
   if (own(selectors.collapsed).length) return null;
 
-  const links = own<HTMLTimeElement>("time").map((time) => {
-    const link = time.closest<HTMLAnchorElement>("a[href]");
-    return link && ownedBy(link, card) && !link.closest(selectors.text)
+  const textSelector = semanticDetail
+    ? selectors.conversationText
+    : selectors.text;
+  const timestamps = semanticDetail
+    ? own<HTMLAnchorElement>(selectors.conversationTimestamp)
+    : own<HTMLTimeElement>("time").map((time) =>
+        time.closest<HTMLAnchorElement>("a[href]"),
+      );
+  const links = timestamps.map((link) =>
+    link && ownedBy(link, card) && !link.closest(textSelector)
       ? link
-      : undefined;
-  });
+      : undefined,
+  );
   const anchor = statusInUrl
     ? links.find((link) => link && statusId(link) === statusInUrl)
     : links.length === 1
@@ -236,7 +261,7 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
   const id = statusId(anchor);
   if (!id) return null;
 
-  const candidates = own(selectors.text);
+  const candidates = own(textSelector);
   const bodies =
     statusInUrl && candidates.length > 1
       ? candidates.filter(isRendered)
@@ -266,20 +291,21 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
 }
 
 function readQuotedPost(post: LocatedPost): PostContext | undefined {
+  const textSelector = post.body.matches(selectors.text)
+    ? selectors.text
+    : selectors.conversationText;
   const quotes = [
     ...post.card.querySelectorAll<HTMLElement>(selectors.quote),
   ].filter((quote) => {
     const parent = quote.parentElement;
     return (
-      parent &&
-      ownedBy(parent, post.card) &&
-      quote.querySelector(selectors.text)
+      parent && ownedBy(parent, post.card) && quote.querySelector(textSelector)
     );
   });
   const quote = quotes.length === 1 ? quotes[0] : undefined;
   if (!quote || quote.querySelector(selectors.collapsed)) return;
 
-  const bodies = quote.querySelectorAll<HTMLElement>(selectors.text);
+  const bodies = quote.querySelectorAll<HTMLElement>(textSelector);
   const body = bodies.length === 1 ? bodies[0] : undefined;
   if (!body || body.closest('[hidden], [aria-hidden="true"]')) return;
 

@@ -7,6 +7,69 @@ import {
   openTimeline,
 } from "../support/x-timeline";
 
+test("analyzes the main post in an X conversation without legacy test IDs", async ({
+  extensionContext,
+  popup,
+}) => {
+  const page = await openTimeline(
+    extensionContext,
+    "/fixture/status/8052?s=20",
+  );
+  await page.locator("main").evaluate((main) => {
+    main.removeAttribute("data-testid");
+    main.innerHTML = `
+      <section aria-labelledby="conversation-title">
+        <h1 hidden id="conversation-title">Conversation</h1>
+        <div id="urt:conversation:8052:none:default">
+          <ul>
+            <li data-index="0">
+              <article>
+                <div dir="auto" lang="id">Argumenmu tidak perlu didengar karena kamu tolol.</div>
+                <span><a data-base-ui-tooltip-trigger href="/fixture/status/8051">1h</a></span>
+                <div role="link" data-slot="embedded-tweet-frame" data-href="/fixture/status/8052">
+                  <a data-base-ui-tooltip-trigger href="/fixture/status/8052">1h</a>
+                  <div dir="auto" lang="id">Sebuah kutipan.</div>
+                </div>
+              </article>
+            </li>
+            <li data-index="1">
+              <div data-navigation-stop>
+                <article>
+                  <div class="translation-row"><button>Show translation</button><button aria-label="Translation settings">⚙</button></div>
+                  <div dir="auto" lang="in">Udah gede, bukannya bantu ibu malah nyusahin.</div>
+                  <div role="link" data-slot="embedded-tweet-frame" data-href="/fixture/status/8053">
+                    <div dir="auto" lang="id">Kutipan dengan gambar.</div>
+                  </div>
+                  <span><a data-base-ui-tooltip-trigger data-status="active" href="/fixture/status/8052">9:30 AM · May 11, 2023</a></span>
+                </article>
+              </div>
+            </li>
+            <li data-index="2">
+              <article>
+                <div dir="auto" lang="id">Pendapatmu tidak perlu didengar karena kamu bodoh.</div>
+                <span><a data-base-ui-tooltip-trigger href="/fixture/status/8054">May 11, 2023</a></span>
+              </article>
+            </li>
+          </ul>
+        </div>
+      </section>
+    `;
+  });
+
+  const primary = page.locator('li[data-index="1"]');
+  const badge = primary.locator(annotation);
+  await expect(primary.locator(`${annotation} + .translation-row`)).toHaveCount(
+    1,
+  );
+  await badge.getByText("Indikasi Tekanan rasa bersalah").click();
+  await expect(badge.locator("blockquote")).toHaveText(
+    "Udah gede, bukannya bantu ibu malah nyusahin.",
+  );
+  await expect(page.locator(annotation)).toHaveCount(1);
+  await expect(popup.locator("#posts")).toHaveText("1");
+  await expect(popup.locator("#patterns")).toHaveText("1");
+});
+
 test("opens an annotation above the translation control even when the page cancels the click default", async ({
   extensionContext,
   popup,
