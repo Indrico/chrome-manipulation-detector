@@ -72,6 +72,7 @@ test("keeps the popup and annotation readable with doubled zoom in both color sc
     expect(
       await contrast(badge.locator("blockquote"), badge),
     ).toBeGreaterThanOrEqual(4.5);
+    expect(await contrast(summary, badge)).toBeGreaterThanOrEqual(4.5);
     for (const surface of [popup.locator("main"), badge]) {
       expect(
         await surface.evaluate(

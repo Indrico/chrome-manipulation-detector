@@ -63,15 +63,18 @@ function isVisible(body: HTMLElement): boolean {
   );
 }
 
-function placeAnnotation(body: HTMLElement, annotation: HTMLElement) {
-  if (annotation.nextElementSibling === body) return;
-  const parent = body.parentElement;
+function placeAnnotation(post: LocatedPost, annotation: HTMLElement) {
+  const anchor = post.annotationAnchor.isConnected
+    ? post.annotationAnchor
+    : post.body;
+  if (annotation.nextElementSibling === anchor) return;
+  const parent = anchor.parentElement;
   if (annotation.isConnected && parent?.moveBefore) {
-    parent.moveBefore(annotation, body);
+    parent.moveBefore(annotation, anchor);
     return;
   }
   const focused = annotation.shadowRoot?.activeElement;
-  body.before(annotation);
+  anchor.before(annotation);
   if (focused instanceof HTMLElement) focused.focus({ preventScroll: true });
 }
 
@@ -120,7 +123,7 @@ export function createFeedMonitor(
         if (!owner) return true;
         if (
           owner.annotation === node &&
-          owner.annotation.nextElementSibling !== owner.post.body
+          owner.annotation.nextElementSibling !== owner.post.annotationAnchor
         )
           pending.add(owner.post.card);
         return false;
@@ -129,7 +132,12 @@ export function createFeedMonitor(
         // Ignore our own DOM writes. A new sibling, such as X's translation
         // control, can move the insertion point without changing the text.
         if (!siteNodes.length) continue;
-        const state = mutation.nextSibling && byBody.get(mutation.nextSibling);
+        const beforeBody =
+          mutation.nextSibling && byBody.get(mutation.nextSibling);
+        const afterAnnotation =
+          mutation.previousSibling &&
+          byAnnotation.get(mutation.previousSibling);
+        const state = beforeBody || afterAnnotation;
         if (state?.annotation) pending.add(state.post.card);
       }
       if (
@@ -286,7 +294,7 @@ export function createFeedMonitor(
       return;
     }
     state.post = post;
-    if (state.annotation) placeAnnotation(post.body, state.annotation);
+    if (state.annotation) placeAnnotation(post, state.annotation);
     if (state.intersecting && !state.complete && !state.running)
       void analyzeVisible(state);
   }
@@ -415,7 +423,7 @@ export function createFeedMonitor(
     );
     state.annotation = annotation;
     byAnnotation.set(annotation, state);
-    placeAnnotation(state.post.body, annotation);
+    placeAnnotation(state.post, annotation);
   }
 
   return {

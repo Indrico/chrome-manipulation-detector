@@ -85,9 +85,17 @@ export function createAnnotation(
   root.adoptedStyleSheets = [sheet];
   const disclosure = document.createElement("details");
   disclosure.open = open;
-  disclosure.append(
-    element("summary", `Kemungkinan pola retorika (${results.length})`),
+  const trigger = element(
+    "summary",
+    `Indikasi ${results.map(({ patternName }) => patternName).join(", ")}`,
   );
+  trigger.addEventListener("click", (event) => {
+    // The page can cancel native summary activation during event capture.
+    event.preventDefault();
+    if (event.isTrusted) disclosure.open = !disclosure.open;
+  });
+  const content = document.createElement("div");
+  content.className = "annotation-content";
   for (const result of results) {
     const section = document.createElement("section");
     const evidence = document.createElement("ul");
@@ -106,17 +114,18 @@ export function createAnnotation(
     for (const limitation of result.limitations ?? [])
       section.append(element("p", limitation));
     section.append(feedbackForm(result.patternId, save));
-    disclosure.append(section);
+    content.append(section);
   }
   const button = element("button", "Tutup anotasi");
   button.type = "button";
   button.addEventListener("click", (event) => {
     if (event.isTrusted) dismiss();
   });
-  disclosure.append(
+  content.append(
     element("p", "Teks ini saja belum cukup untuk menyimpulkan niat penulis."),
     button,
   );
+  disclosure.append(trigger, content);
   host.addEventListener("click", (event) => event.stopPropagation());
   host.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") event.stopPropagation();

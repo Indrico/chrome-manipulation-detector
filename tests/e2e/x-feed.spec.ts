@@ -22,7 +22,9 @@ test("annotates visible home posts and keeps interaction and feedback local", as
   const cell = feed.locator('[data-mock-id="1"]');
   const badge = cell.locator(annotation);
   const disclosure = badge.locator("summary");
-  await expect(disclosure).toHaveText("Kemungkinan pola retorika (2)");
+  await expect(disclosure).toHaveText(
+    "Indikasi Dilema palsu, Tekanan rasa bersalah",
+  );
   await expect(
     badge.getByRole("heading", { name: "Dilema palsu" }),
   ).toBeHidden();
@@ -232,7 +234,7 @@ test("applies visibility, category and master settings without recounting cached
   await visible.check();
   await feed.bringToFront();
   await expect(badge.locator("summary")).toHaveText(
-    "Kemungkinan pola retorika (1)",
+    "Indikasi Tekanan rasa bersalah",
   );
   await badge.locator("summary").click();
   await expect(

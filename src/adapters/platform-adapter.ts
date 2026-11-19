@@ -2,6 +2,7 @@ export interface LocatedPost {
   readonly id: string;
   readonly card: HTMLElement;
   readonly body: HTMLElement;
+  readonly annotationAnchor: HTMLElement;
   readonly focusTarget: HTMLElement;
 }
 

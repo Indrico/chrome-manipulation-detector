@@ -7,7 +7,7 @@ import {
   openTimeline,
 } from "../support/x-timeline";
 
-test("shows the annotation below the translation control before a tall quote", async ({
+test("opens an annotation above the translation control even when the page cancels the click default", async ({
   extensionContext,
   popup,
 }) => {
@@ -18,8 +18,17 @@ test("shows the annotation below the translation control before a tall quote", a
   await card.evaluate((article) => {
     const body = article.querySelector('[data-testid="tweetText"]')!;
     const content = document.createElement("div");
+    content.style.pointerEvents = "none";
     body.before(content);
     content.append(body);
+    article.addEventListener(
+      "click",
+      (event) => {
+        if ((event.target as Element).matches("[data-manipulation-detector]"))
+          event.preventDefault();
+      },
+      true,
+    );
     const quote = document.createElement("div");
     quote.dataset.testid = "quoteTweet";
     quote.style.height = "1000px";
@@ -29,7 +38,8 @@ test("shows the annotation below the translation control before a tall quote", a
 
   const badge = card.locator(annotation);
   await expect(badge).toBeInViewport({ ratio: 1 });
-  await badge.locator("summary").click();
+  const trigger = badge.locator("summary");
+  await trigger.click({ position: { x: 12, y: 12 } });
   await expect(badge.locator("blockquote")).toHaveText(adHominemText);
   await badge.locator("summary").focus();
 
@@ -38,10 +48,12 @@ test("shows the annotation below the translation control before a tall quote", a
   await body.evaluate((text) => {
     const row = document.createElement("div");
     row.id = "translation-row";
+    row.style.pointerEvents = "auto";
     const button = document.createElement("button");
-    button.textContent = "Show translation";
+    button.setAttribute("aria-label", "Show translation");
+    button.textContent = "Terjemahan";
     button.addEventListener("click", () => {
-      button.textContent = "Hide translation";
+      button.setAttribute("aria-label", "Hide translation");
     });
     row.append(button);
     text.before(row);
@@ -49,7 +61,7 @@ test("shows the annotation below the translation control before a tall quote", a
 
   await expect(
     card.locator(
-      `#translation-row + ${annotation} + [data-testid="tweetText"]`,
+      `${annotation} + #translation-row + [data-testid="tweetText"]`,
     ),
   ).toHaveCount(1);
   await expect(badge.locator("summary")).toBeFocused();
@@ -58,6 +70,11 @@ test("shows the annotation below the translation control before a tall quote", a
   await expect(
     card.getByRole("button", { name: "Hide translation" }),
   ).toBeVisible();
+  await expect(trigger).toHaveText("Indikasi Ad Hominem");
+  await trigger.click();
+  await expect(badge.locator("blockquote")).toBeHidden();
+  await trigger.press("Enter");
+  await expect(badge.locator("blockquote")).toBeVisible();
   await expect(page.locator(annotation)).toHaveCount(1);
   await expect(popup.locator("#posts")).toHaveText("1");
   await expect(popup.locator("#patterns")).toHaveText("1");

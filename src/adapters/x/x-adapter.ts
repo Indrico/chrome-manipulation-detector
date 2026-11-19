@@ -10,6 +10,18 @@ const homeTabs = new Set([
   "mengikuti",
 ]);
 const searchTabs = new Set(["top", "latest", "populer", "teratas", "terbaru"]);
+const translationLabels = new Set([
+  "show translation",
+  "hide translation",
+  "translate post",
+  "show original",
+  "tampilkan terjemahan",
+  "lihat terjemahan",
+  "sembunyikan terjemahan",
+  "terjemahkan postingan",
+  "tampilkan teks asli",
+  "lihat teks asli",
+]);
 const statusPath = /^(?:\/[a-z0-9_]{1,15}|\/i\/web)\/status\/(\d{1,25})\/?$/i;
 const visibleReplyLabel = /^(?:replying to\b|membalas\b)/iu;
 const structural = [
@@ -51,6 +63,37 @@ function ownedBy(element: Element, card: HTMLElement) {
   return (
     element.closest(selectors.card) === card && !(quote && card.contains(quote))
   );
+}
+
+function findAnnotationAnchor(card: HTMLElement, body: HTMLElement) {
+  for (const control of card.querySelectorAll<HTMLElement>(
+    selectors.translationControl,
+  )) {
+    const label = control.textContent.trim();
+    if (
+      ![control.getAttribute("aria-label"), label].some((name) =>
+        translationLabels.has(name?.trim().toLowerCase() ?? ""),
+      ) ||
+      !ownedBy(control, card) ||
+      body.contains(control) ||
+      control.contains(body) ||
+      !(
+        control.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING
+      )
+    )
+      continue;
+
+    // Mount outside wrappers that belong solely to the translation control.
+    let row = control;
+    while (
+      row.parentElement &&
+      !row.parentElement.contains(body) &&
+      row.parentElement.textContent.trim() === label
+    )
+      row = row.parentElement;
+    return row;
+  }
+  return body;
 }
 
 function findFeed(document: Document): HTMLElement | null {
@@ -177,22 +220,24 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
   if (!body) return null;
 
   // A reply can be the requested status on a detail page.
-  if (statusInUrl) return { id, card, body, focusTarget: anchor };
-  if (own(selectors.reply).length) return null;
-  // Some X layouts render the reply label as plain text beside a profile link.
-  const socialLabels = own("div, span").filter(
-    (element) =>
-      element.firstChild?.nodeType === Node.TEXT_NODE &&
-      !element.closest(selectors.text),
-  );
-  if (
-    socialLabels.some((element) =>
-      visibleReplyLabel.test(element.firstChild?.nodeValue?.trim() ?? ""),
-    )
-  )
-    return null;
+  if (!statusInUrl) {
+    if (own(selectors.reply).length) return null;
+    // Some X layouts place a plain-text reply label beside a profile link.
+    const hasReplyLabel = own("div, span").some(
+      (element) =>
+        !element.closest(selectors.text) &&
+        visibleReplyLabel.test(element.firstChild?.nodeValue?.trim() ?? ""),
+    );
+    if (hasReplyLabel) return null;
+  }
 
-  return { id, card, body, focusTarget: anchor };
+  return {
+    id,
+    card,
+    body,
+    annotationAnchor: findAnnotationAnchor(card, body),
+    focusTarget: anchor,
+  };
 }
 
 function readQuotedPost(post: LocatedPost): PostContext | undefined {
