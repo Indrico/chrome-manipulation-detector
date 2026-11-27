@@ -8,13 +8,28 @@ import packedModel from "../data/local-model.json";
 import { contextualPatterns, supportedPatternIds } from "../data/patterns";
 import type { DetectionResult } from "../models/detection-result";
 import type { PatternId } from "../models/pattern";
+import type { PostContext } from "../models/post";
+import { createOnlineQueue } from "../online/queue";
+import {
+  maskIdentifiers,
+  onlineContextLength,
+  onlineTextLength,
+  toOnlineDetections,
+  type OnlineBatch,
+  type OnlineReply,
+  type OnlineStatus,
+} from "../online/protocol";
 import type {
   FeedbackEntry,
   PlatformStatus,
   SessionTotals,
 } from "../storage/activity";
 import { enabledPatterns, type Settings } from "../storage/settings";
-import { createAnnotation } from "../ui/annotation";
+import {
+  createAnalysisStatus,
+  createAnnotation,
+  type AnalysisStatus,
+} from "../ui/annotation";
 
 type CachedMatch = Omit<DetectionResult, "matchedText">;
 type CachedRevision = {
@@ -27,6 +42,7 @@ type TrackedPost = {
   post: LocatedPost;
   intersecting: boolean;
   complete: boolean;
+  retryOnline?: boolean;
   running: boolean;
   generation: number;
   annotationOpen: boolean;
@@ -86,18 +102,24 @@ export function createFeedMonitor(
   adapter: PlatformAdapter,
   reportTotals: (delta: SessionTotals) => void,
   saveFeedback: (entry: FeedbackEntry) => Promise<boolean>,
+  sendOnline?: (batch: OnlineBatch) => Promise<OnlineReply>,
+  fallbackToLocal = false,
 ) {
   const tracked = new Map<HTMLElement, TrackedPost>();
   const byBody = new WeakMap<Node, TrackedPost>();
   const byAnnotation = new WeakMap<Node, TrackedPost>();
   const pending = new Set<HTMLElement>();
   const revisions = new Map<string, CachedRevision>();
+  const onlineCache = new Map<string, CachedMatch[] | null>();
+  const onlineQueue =
+    sendOnline && createOnlineQueue(sendOnline, resumePendingOnline);
   const dismissed = new Map<string, true>();
   const encoder = new TextEncoder();
   let settings: Settings | undefined;
   let activePatterns: readonly PatternId[] = [];
   let feed: HTMLElement | null = null;
   let feedPath: string | undefined;
+  const route = () => location.pathname + location.search;
   let watchRoot = false;
   let refreshRoot = false;
   let suspended = false;
@@ -185,8 +207,8 @@ export function createFeedMonitor(
 
   function removeAnnotation(state: TrackedPost) {
     if (!state.annotation) return;
-    state.annotationOpen =
-      state.annotation.shadowRoot?.querySelector("details")?.open ?? false;
+    const details = state.annotation.shadowRoot?.querySelector("details");
+    if (details) state.annotationOpen = details.open;
     if (document.activeElement === state.annotation) {
       state.post.focusTarget.focus({ preventScroll: true });
     }
@@ -197,6 +219,7 @@ export function createFeedMonitor(
   function invalidate(state: TrackedPost) {
     state.generation++;
     state.complete = false;
+    state.retryOnline = false;
     removeAnnotation(state);
   }
 
@@ -208,8 +231,9 @@ export function createFeedMonitor(
   }
 
   function setFeed(next: HTMLElement | null) {
-    const nextPath = next ? location.pathname : undefined;
+    const nextPath = next ? route() : undefined;
     if (next === feed && nextPath === feedPath) return;
+    onlineQueue?.clear();
     feedObserver.disconnect();
     for (const state of tracked.values()) untrack(state);
     pending.clear();
@@ -245,6 +269,18 @@ export function createFeedMonitor(
     watchRoot = false;
     setFeed(null);
     flushTotals();
+  }
+
+  function resumePendingOnline() {
+    if (!settings?.online || suspended) return;
+    for (const state of tracked.values()) {
+      if (state.retryOnline) {
+        state.retryOnline = false;
+        state.complete = false;
+      }
+      if (state.intersecting && !state.complete) pending.add(state.post.card);
+    }
+    if (pending.size) schedule();
   }
 
   function processFrame() {
@@ -313,7 +349,7 @@ export function createFeedMonitor(
       state.intersecting &&
       activePatterns.length > 0 &&
       adapter.supports(location) &&
-      feedPath === location.pathname &&
+      feedPath === route() &&
       !!feed?.contains(state.post.card) &&
       isVisible(state.post.body)
     );
@@ -328,10 +364,21 @@ export function createFeedMonitor(
 
   async function analyzeVisible(state: TrackedPost) {
     if (!canAnalyze(state)) return;
-    const input = adapter.readPost(
-      state.post,
-      activePatterns.some((id) => contextualPatterns.includes(id)),
+    const online = settings?.online === true && onlineQueue;
+    const includeContext = activePatterns.some((id) =>
+      contextualPatterns.includes(id),
     );
+    const onlineInput = online
+      ? adapter.readOnlinePost?.(state.post, includeContext)
+      : undefined;
+    const input =
+      onlineInput ||
+      ((!online || fallbackToLocal) &&
+        adapter.readPost(state.post, includeContext));
+    if (!input) {
+      state.complete = true;
+      return;
+    }
     const { text } = input;
     const context = input.context?.filter(
       (item) => item.text.length <= maxPostLength,
@@ -363,6 +410,97 @@ export function createFeedMonitor(
     }
     if (state.generation !== generation || !canAnalyze(state)) return;
     const key = `${state.post.id}:${bodyFingerprint}`;
+    if (online && onlineInput && text.length <= onlineTextLength) {
+      const categories = [...activePatterns];
+      const contextText = context?.[0]?.text;
+      const post = {
+        text: maskIdentifiers(text),
+        ...(contextText &&
+          contextText.length <= onlineContextLength && {
+            context: maskIdentifiers(contextText),
+          }),
+      };
+      const revision = `${key}:${post.context ? contextFingerprint : ""}:${categories.join()}`;
+      const matchesCurrent = () =>
+        state.generation === generation &&
+        route() === feedPath &&
+        tracked.get(state.post.card) === state;
+      let results = onlineCache.get(revision);
+      let paused: OnlineStatus["reason"] | undefined;
+      if (results === undefined) {
+        state.running = true;
+        paintStatus(state, "loading");
+        const matches = await online.add(
+          revision,
+          post,
+          categories,
+          () => matchesCurrent() && canAnalyze(state),
+        );
+        state.running = false;
+        if (matches && "status" in matches) {
+          paused = matches.status.reason;
+        } else if (matches !== undefined) {
+          results =
+            matches &&
+            toOnlineDetections({ categories, posts: [post] }, 0, matches);
+          remember(onlineCache, revision, results);
+        }
+      }
+      if (!matchesCurrent()) {
+        if (tracked.get(state.post.card) === state) {
+          pending.add(state.post.card);
+          schedule();
+        }
+        return;
+      }
+      state.complete = results !== undefined;
+      if (!results) {
+        if (fallbackToLocal && (paused || results === null)) {
+          state.retryOnline = !!paused && paused !== "credential";
+          analyzeLocally(state, key, text, context, contextFingerprint, true);
+        } else {
+          paintStatus(
+            state,
+            paused ?? (results === null ? "failed" : "waiting"),
+          );
+        }
+        return;
+      }
+      const cached = revisions.get(key) ?? {
+        results: new Map(),
+        countedPatterns: new Set<PatternId>(),
+      };
+      if (!revisions.has(key)) delta.posts++;
+      for (const { patternId, confidenceLevel } of results) {
+        if (
+          confidenceLevel === "insufficient_context" ||
+          cached.countedPatterns.has(patternId)
+        )
+          continue;
+        cached.countedPatterns.add(patternId);
+        delta.patterns++;
+      }
+      remember(revisions, key, cached);
+      if (delta.posts || delta.patterns) schedule();
+      if (results.length) paintMatches(state, text, results);
+      else paintStatus(state, "clear");
+      return;
+    }
+    if (online && !fallbackToLocal) {
+      state.complete = true;
+      return;
+    }
+    analyzeLocally(state, key, text, context, contextFingerprint, !!online);
+  }
+
+  function analyzeLocally(
+    state: TrackedPost,
+    key: string,
+    text: string,
+    context: readonly PostContext[] | undefined,
+    contextFingerprint: string | undefined,
+    fallback: boolean,
+  ) {
     let cached = revisions.get(key);
     if (!cached) {
       cached = { results: new Map(), countedPatterns: new Set() };
@@ -413,17 +551,40 @@ export function createFeedMonitor(
     state.complete = true;
     if (delta.posts || delta.patterns) schedule();
 
+    const matches = activePatterns.flatMap((id) => results.get(id) ?? []);
+    if (fallback && !matches.length) paintStatus(state, "local_clear");
+    else paintMatches(state, text, matches, fallback);
+  }
+
+  function mountAnnotation(state: TrackedPost, annotation: HTMLElement) {
+    removeAnnotation(state);
+    state.annotation = annotation;
+    byAnnotation.set(annotation, state);
+    placeAnnotation(state.post, annotation);
+  }
+
+  function paintStatus(state: TrackedPost, status: AnalysisStatus) {
     if (!settings?.showAnnotations || dismissed.has(state.post.id)) return;
-    const matches: DetectionResult[] = [];
-    for (const id of activePatterns) {
-      const result = results.get(id);
-      if (result)
-        matches.push({
-          ...result,
-          matchedText: text.slice(result.span.start, result.span.end),
-        });
-    }
-    if (!matches.length) return;
+    if (state.annotation?.dataset.analysisStatus === status) return;
+    mountAnnotation(state, createAnalysisStatus(status));
+  }
+
+  function paintMatches(
+    state: TrackedPost,
+    text: string,
+    results: readonly CachedMatch[],
+    localFallback = false,
+  ) {
+    if (
+      !results.length ||
+      !settings?.showAnnotations ||
+      dismissed.has(state.post.id)
+    )
+      return;
+    const matches = results.map((result) => ({
+      ...result,
+      matchedText: text.slice(result.span.start, result.span.end),
+    }));
     const annotation = createAnnotation(
       matches,
       state.annotationOpen,
@@ -436,10 +597,9 @@ export function createFeedMonitor(
         }
       },
       saveFeedback,
+      localFallback,
     );
-    state.annotation = annotation;
-    byAnnotation.set(annotation, state);
-    placeAnnotation(state.post, annotation);
+    mountAnnotation(state, annotation);
   }
 
   return {
@@ -447,6 +607,7 @@ export function createFeedMonitor(
       const nextPatterns = enabledPatterns(next, supportedPatternIds);
       const changed =
         next.showAnnotations !== settings?.showAnnotations ||
+        (next.online === true) !== (settings?.online === true) ||
         (next.localModel === true) !== (settings?.localModel === true) ||
         nextPatterns.join() !== activePatterns.join();
       settings = next;
@@ -456,6 +617,7 @@ export function createFeedMonitor(
         return;
       }
       if (changed) {
+        onlineQueue?.clear();
         for (const state of tracked.values()) {
           invalidate(state);
           pending.add(state.post.card);
@@ -465,6 +627,7 @@ export function createFeedMonitor(
       schedule();
     },
     routeChanged() {
+      onlineQueue?.clear();
       refreshRoot = true;
       schedule();
     },
@@ -485,7 +648,7 @@ export function createFeedMonitor(
       if (settings && !activePatterns.length) return "paused";
       return settings &&
         feed?.isConnected &&
-        feedPath === location.pathname &&
+        feedPath === route() &&
         tracked.size > 0
         ? "active"
         : "waiting";

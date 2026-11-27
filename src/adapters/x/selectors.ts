@@ -6,6 +6,7 @@ export const selectors = {
   column: '[data-testid="primaryColumn"]',
   main: "main",
   feed: '[role="feed"], [role="region"], section[aria-labelledby], section[aria-label]',
+  semanticHomeFeed: 'section [id^="urt:home:"]',
   semanticSearchFeed: 'section [id^="urt:search:"]',
   secondary: 'aside, [role="complementary"]',
   selectedTab: '[role="tab"][aria-selected="true"]',
@@ -24,4 +25,6 @@ export const selectors = {
     '[data-testid="quoteTweet"], [data-testid="card.wrapper"], [data-slot="embedded-tweet-frame"], div[role="link"]',
   reply: '[data-testid="replyingTo"], [data-testid="replyContext"]',
   collapsed: '[data-testid="tweet-text-show-more-link"]',
+  restricted:
+    '[data-testid="icon-lock"], [data-testid="protectedAccount"], [data-testid="superFollowTweet"], [aria-label="Protected account" i], [aria-label="Akun dilindungi" i]',
 };

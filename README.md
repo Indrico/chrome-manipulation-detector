@@ -12,6 +12,8 @@ The popup counts each analyzed post revision and each of its detected categories
 
 Enable **Model lokal (eksperimental)** in the popup to try additional on-device suggestions for Ad Hominem, False Dilemma, and Guilt Tripping. The setting is off by default. See the [pilot model evaluation](docs/DETECTION-METHODOLOGY.md#experimental-local-model) for results and limits.
 
+To enable online analysis, create an [API key in your Groq account](https://console.groq.com/keys), paste it into **API key Groq** in the popup, and choose **Simpan dan aktifkan**. The standard build sends batches of up to ten visible posts directly to Groq and uses the quota of your Groq organization. The extension shows **Analisis lokal** when the online service cannot complete an analysis. Choose **Putuskan Groq** to remove the key from Chrome. See the [privacy policy](docs/PRIVACY.md).
+
 ## Install
 
 1. Download the Chrome ZIP and its SHA-256 checksum from [GitHub Releases](https://github.com/Indrico/chrome-manipulation-detector/releases). Verify the ZIP against the checksum, then extract it.
@@ -41,6 +43,8 @@ npm run format:check
 npm run typecheck
 npm run build
 npm run test:e2e
+npm run test:e2e:online
+npm run test:e2e:online -- --groq
 npm run evaluate
 ```
 

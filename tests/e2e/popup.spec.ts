@@ -16,9 +16,12 @@ test("production manifest restricts site access and bundles local assets and not
   expect(manifest.permissions).toEqual(["storage"]);
   expect(manifest.action.default_popup).toBe("popup.html");
   expect(manifest.host_permissions).toBeUndefined();
+  expect(manifest.optional_host_permissions).toEqual([
+    "https://api.groq.com/*",
+  ]);
   expect(manifest.externally_connectable).toBeUndefined();
   expect(manifest.content_security_policy.extension_pages).toContain(
-    "connect-src 'none'",
+    "connect-src https://api.groq.com; form-action 'none'",
   );
   expect(
     await readFile(resolve(extensionDirectory, "LICENSE"), "utf8"),

@@ -1,0 +1,17 @@
+{
+  "name": "manipulation-detector-online",
+  "main": "index.ts",
+  "compatibility_date": "2026-11-25",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "ai": { "binding": "AI" },
+  "vars": { "LLM_MODEL": "@cf/google/gemma-4-26b-a4b-it" },
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "482317",
+      "simple": { "limit": 12, "period": 60 },
+    },
+  ],
+}

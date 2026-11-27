@@ -8,6 +8,19 @@ import styles from "./annotation.css?inline";
 
 let sheet: CSSStyleSheet | undefined;
 
+function annotationHost() {
+  const host = document.createElement("div");
+  host.dataset.manipulationDetector = "";
+  host.lang = "id";
+  const root = host.attachShadow({ mode: "open" });
+  if (!sheet) {
+    sheet = new CSSStyleSheet();
+    sheet.replaceSync(styles);
+  }
+  root.adoptedStyleSheets = [sheet];
+  return root;
+}
+
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   text: string,
@@ -15,6 +28,38 @@ function element<K extends keyof HTMLElementTagNameMap>(
   const node = document.createElement(tag);
   node.textContent = text;
   return node;
+}
+
+const analysisLabels = {
+  loading: "Sedang dianalisis…",
+  clear: "Tidak ada pola terdeteksi",
+  local_clear: "Analisis lokal · Tidak ada pola terdeteksi",
+  failed: "Analisis gagal",
+  waiting: "Belum dianalisis",
+  daily_limit: "Kuota harian habis",
+  quota: "Menunggu kuota online",
+  unavailable: "Menunggu layanan online",
+  permission: "Izin online diperlukan",
+  credential: "Periksa API key Groq",
+  invalid_output: "Hasil online gagal divalidasi",
+  partial: "Sebagian hasil tidak tersedia",
+} as const;
+export type AnalysisStatus = keyof typeof analysisLabels;
+
+export function createAnalysisStatus(status: AnalysisStatus) {
+  const root = annotationHost();
+  const host = root.host as HTMLElement;
+  host.dataset.analysisStatus = status;
+  const label = element("span", analysisLabels[status]);
+  label.className = "analysis-label";
+  if (status === "loading" || status === "clear" || status === "local_clear") {
+    const icon = element("span", status === "loading" ? "" : "✓");
+    icon.className = "analysis-icon";
+    icon.setAttribute("aria-hidden", "true");
+    label.prepend(icon);
+  }
+  root.append(label);
+  return host;
 }
 
 function feedbackForm(
@@ -73,21 +118,21 @@ export function createAnnotation(
   open: boolean,
   dismiss: () => void,
   save: (entry: FeedbackEntry) => Promise<boolean>,
+  localFallback = false,
 ): HTMLElement {
-  const host = document.createElement("div");
-  host.dataset.manipulationDetector = "";
-  host.lang = "id";
-  const root = host.attachShadow({ mode: "open" });
-  if (!sheet) {
-    sheet = new CSSStyleSheet();
-    sheet.replaceSync(styles);
-  }
-  root.adoptedStyleSheets = [sheet];
+  const root = annotationHost();
+  const host = root.host as HTMLElement;
   const disclosure = document.createElement("details");
   disclosure.open = open;
+  const flagged = results.filter(
+    ({ confidenceLevel }) => confidenceLevel !== "insufficient_context",
+  );
   const trigger = element(
     "summary",
-    `Indikasi ${results.map(({ patternName }) => patternName).join(", ")}`,
+    (localFallback ? "Analisis lokal · " : "") +
+      (flagged.length
+        ? `Indikasi ${flagged.map(({ patternName }) => patternName).join(", ")}`
+        : "Konteks tidak cukup"),
   );
   trigger.addEventListener("click", (event) => {
     // The page can cancel native summary activation during event capture.
@@ -103,7 +148,9 @@ export function createAnnotation(
     const confidence =
       result.confidenceLevel === "likely"
         ? "Indikasi lebih kuat"
-        : "Indikasi awal";
+        : result.confidenceLevel === "insufficient_context"
+          ? "Konteks tidak cukup"
+          : "Indikasi awal";
     section.append(
       element("h3", result.patternName),
       element("p", confidence),

@@ -36,6 +36,49 @@
           ><input type="checkbox" id="local-model" /> Model lokal
           (eksperimental)</label
         >
+        <div id="online-options" hidden>
+          <label
+            ><input
+              type="checkbox"
+              id="online"
+              aria-describedby="online-disclosure"
+            />
+            Analisis online otomatis</label
+          >
+          <p id="online-disclosure">
+            Saat aktif, teks unggahan yang terlihat dikirim ke layanan
+            Manipulation Detector dan diproses oleh Cloudflare Workers AI.
+          </p>
+        </div>
+        <div id="groq-options" hidden>
+          <p id="groq-disclosure">
+            Analisis online mengirim teks unggahan X yang terlihat langsung ke
+            Groq. Kuota dan biaya mengikuti paket akun Groq Anda.
+          </p>
+          <form id="groq-form" method="post" aria-label="Hubungkan Groq">
+            <label for="groq-key">API key Groq</label>
+            <input
+              type="password"
+              id="groq-key"
+              required
+              maxlength="256"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="groq-disclosure status"
+            />
+            <button type="submit">Simpan dan aktifkan</button>
+            <a
+              href="https://console.groq.com/keys"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Buat API key</a
+            >
+          </form>
+          <button type="button" id="groq-disconnect" hidden>
+            Putuskan Groq
+          </button>
+        </div>
+        <p id="online-state" aria-live="polite" hidden></p>
         <fieldset id="categories">
           <legend>Pola deteksi</legend>
         </fieldset>
@@ -50,7 +93,6 @@
         </button>
       </details>
       <footer>
-        <p>Analisis berlangsung di perangkat Anda.</p>
         <nav aria-label="Dokumentasi">
           <a href="/panduan.html" target="_blank" rel="noopener">Panduan</a>
           <a href="/panduan.html#privasi" target="_blank" rel="noopener"

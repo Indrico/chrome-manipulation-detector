@@ -7,8 +7,20 @@ import {
   type FeedbackEntry,
   type SessionTotals,
 } from "../storage/activity";
-import { readSettings, settingsKey } from "../storage/settings";
+import {
+  readSettings,
+  settingsKey,
+  settingsResponseSchema,
+} from "../storage/settings";
 import { createFeedMonitor } from "../content/feed-monitor";
+import { onlineOrigin } from "../online/config";
+import { onlineReplySchema, type OnlineBatch } from "../online/protocol";
+
+async function analyzeOnline(batch: OnlineBatch) {
+  return onlineReplySchema.parse(
+    await browser.runtime.sendMessage({ type: "online:analyze", batch }),
+  );
+}
 
 async function reportTotals(delta: SessionTotals) {
   try {
@@ -40,6 +52,8 @@ export default defineContentScript({
       xAdapter,
       (delta) => void reportTotals(delta),
       saveFeedback,
+      analyzeOnline,
+      !onlineOrigin,
     );
     let receivedChange = false;
     const onStorage: Parameters<
@@ -76,9 +90,22 @@ export default defineContentScript({
       browser.runtime.onMessage.removeListener(onMessage);
     });
     try {
+      const response = settingsResponseSchema.safeParse(
+        await browser.runtime
+          .sendMessage({ type: "settings:get" })
+          .catch(() => undefined),
+      );
+      if (response.data?.ok) {
+        if (ctx.isValid && !receivedChange)
+          monitor.setSettings(response.data.settings);
+        return;
+      }
       const data = await browser.storage.local.get(settingsKey);
       if (ctx.isValid && !receivedChange)
-        monitor.setSettings(readSettings(data[settingsKey]));
+        monitor.setSettings({
+          ...readSettings(data[settingsKey]),
+          online: false,
+        });
     } catch {
       // Wait for a storage change rather than scanning with unknown settings.
     }

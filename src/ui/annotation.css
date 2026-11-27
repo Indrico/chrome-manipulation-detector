@@ -90,3 +90,66 @@ select {
     --annotation-accent: #ffadb9;
   }
 }
+
+:host([data-analysis-status]) {
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  margin-block: 0.2rem 0.25rem;
+  padding: 0.125rem 0.4rem;
+  border-radius: 0.35rem;
+  background: #f1f4f8;
+  color: #304355;
+  border-color: #d1dae4;
+  font-size: 0.75rem;
+}
+
+:host([data-analysis-status="clear"]) {
+  background: #edf8f0;
+  color: #205838;
+  border-color: #a9cfb5;
+}
+
+.analysis-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.analysis-icon {
+  flex: none;
+  font-weight: 700;
+}
+
+:host([data-analysis-status="loading"]) .analysis-icon {
+  inline-size: 0.65rem;
+  block-size: 0.65rem;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :host([data-analysis-status="loading"]) .analysis-icon {
+    animation: spin 0.9s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([data-analysis-status]) {
+    background: #202832;
+    color: #d7e2ef;
+    border-color: #4d5c70;
+  }
+
+  :host([data-analysis-status="clear"]) {
+    background: #172e23;
+    color: #a9e1bd;
+    border-color: #476c53;
+  }
+}

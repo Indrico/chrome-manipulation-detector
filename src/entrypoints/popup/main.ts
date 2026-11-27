@@ -1,5 +1,13 @@
 import { browser } from "wxt/browser";
 import { patternNames, supportedPatternIds } from "../../data/patterns";
+import { onlineOrigin, onlinePermission } from "../../online/config";
+import {
+  groqKeySchema,
+  onlineStatusKey,
+  onlineStatusSchema,
+  type GroqConnectionMessage,
+  type OnlineStatus,
+} from "../../online/protocol";
 import {
   feedbackKey,
   feedbackSchema,
@@ -22,6 +30,16 @@ const preferences =
 const enabled = document.querySelector<HTMLInputElement>("#enabled")!;
 const annotations = document.querySelector<HTMLInputElement>("#annotations")!;
 const localModel = document.querySelector<HTMLInputElement>("#local-model")!;
+const online = document.querySelector<HTMLInputElement>("#online")!;
+const onlineOptions =
+  document.querySelector<HTMLDivElement>("#online-options")!;
+const groqOptions = document.querySelector<HTMLDivElement>("#groq-options")!;
+const groqForm = document.querySelector<HTMLFormElement>("#groq-form")!;
+const groqKey = document.querySelector<HTMLInputElement>("#groq-key")!;
+const disconnect =
+  document.querySelector<HTMLButtonElement>("#groq-disconnect")!;
+const onlineState =
+  document.querySelector<HTMLParagraphElement>("#online-state")!;
 const categories = document.querySelector<HTMLFieldSetElement>("#categories")!;
 const reset = document.querySelector<HTMLButtonElement>("#reset")!;
 const status = document.querySelector<HTMLParagraphElement>("#status")!;
@@ -39,6 +57,56 @@ let settings: Settings | undefined;
 let feedback: FeedbackRecord[] = [];
 let totalsChanged = false;
 let feedbackChanged = false;
+let onlineStatus: OnlineStatus | undefined;
+let onlineStatusChanged = false;
+let onlineStatusTimer: number | undefined;
+onlineOptions.hidden = !onlineOrigin;
+groqOptions.hidden = !!onlineOrigin;
+
+const onlineLabels: Record<OnlineStatus["reason"], string> = {
+  daily_limit: "Batas analisis harian tercapai.",
+  quota: onlineOrigin
+    ? "Kuota layanan sedang membatasi analisis."
+    : "Kuota Groq tercapai. Deteksi lokal aktif sementara.",
+  unavailable: onlineOrigin
+    ? "Layanan analisis online sedang tidak tersedia."
+    : "Groq sedang tidak tersedia. Deteksi lokal aktif sementara.",
+  partial: onlineOrigin
+    ? "Sebagian unggahan dalam batch terakhir gagal dianalisis."
+    : "Sebagian hasil Groq tidak tersedia. Deteksi lokal dipakai untuk unggahan tersebut.",
+  permission: onlineOrigin
+    ? "Izin layanan dicabut. Aktifkan ulang mode online untuk memberi izin."
+    : "Izin Groq dicabut. Putuskan lalu hubungkan kembali.",
+  credential:
+    "Groq menolak API key atau akses model. Putuskan Groq lalu masukkan key yang bisa digunakan.",
+  invalid_output:
+    "Hasil batch Groq gagal divalidasi. Deteksi lokal dipakai untuk batch itu.",
+};
+
+function renderOnlineStatus() {
+  window.clearTimeout(onlineStatusTimer);
+  onlineState.hidden = !settings?.online;
+  if (!settings?.online) return;
+  if (
+    !settings.enabled ||
+    supportedPatternIds.every((id) => settings?.categories[id] === false)
+  ) {
+    onlineState.textContent = "Mode online dijeda.";
+    return;
+  }
+  const remaining = (onlineStatus?.retryAt ?? 0) - Date.now();
+  onlineState.textContent =
+    onlineStatus &&
+    (remaining > 0 ||
+      onlineStatus.reason === "permission" ||
+      onlineStatus.reason === "credential" ||
+      onlineStatus.reason === "invalid_output" ||
+      onlineStatus.reason === "partial")
+      ? onlineLabels[onlineStatus.reason]
+      : "Mode online aktif untuk unggahan yang terlihat.";
+  if (remaining > 0)
+    onlineStatusTimer = window.setTimeout(renderOnlineStatus, remaining);
+}
 const platformLabels: Readonly<Record<PlatformStatus, string>> = {
   active: "Deteksi aktif",
   waiting: "Menunggu unggahan di halaman X",
@@ -130,12 +198,20 @@ function render() {
   enabled.checked = settings.enabled;
   annotations.checked = settings.showAnnotations;
   localModel.checked = settings.localModel === true;
+  localModel.disabled = !!onlineOrigin && settings.online === true;
+  online.checked = settings.online === true;
+  groqForm.hidden = settings.online === true;
+  disconnect.hidden = settings.online !== true;
+  renderOnlineStatus();
   for (const { patternId, control } of categoryControls) {
     control.checked = settings.categories[patternId] !== false;
   }
 }
 
-async function request(message: SettingsMessage, successMessage = "") {
+async function request(
+  message: SettingsMessage | GroqConnectionMessage,
+  successMessage = "",
+) {
   const focused = document.activeElement;
   preferences.disabled = true;
 
@@ -145,13 +221,15 @@ async function request(message: SettingsMessage, successMessage = "") {
     );
     if (!response.success || !response.data.ok) {
       status.textContent = "Pengaturan tidak dapat dimuat atau disimpan.";
-      return;
+      return false;
     }
     settings = response.data.settings;
     status.textContent = successMessage;
+    return true;
   } catch {
     status.textContent =
       "Pengaturan tidak dapat dimuat atau disimpan. Coba buka kembali popup.";
+    return false;
   } finally {
     render();
     void refreshPlatform();
@@ -185,6 +263,76 @@ localModel.addEventListener("change", () =>
     "Pengaturan tersimpan.",
   ),
 );
+online.addEventListener("change", () => {
+  if (!onlineOrigin) return;
+  if (!online.checked) {
+    void request(
+      { type: "settings:patch", patch: { online: false } },
+      "Mode lokal aktif.",
+    );
+    return;
+  }
+  void (async () => {
+    preferences.disabled = true;
+    try {
+      if (await browser.permissions.request(onlinePermission)) {
+        await request(
+          { type: "settings:patch", patch: { online: true } },
+          "Mode online aktif.",
+        );
+      } else {
+        status.textContent = "Izin analisis online belum diberikan.";
+      }
+    } catch {
+      status.textContent = "Izin analisis online tidak dapat diminta.";
+    } finally {
+      render();
+      preferences.disabled = settings === undefined;
+    }
+  })();
+});
+groqKey.addEventListener("input", () =>
+  groqKey.removeAttribute("aria-invalid"),
+);
+groqForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (onlineOrigin || preferences.disabled) return;
+  const parsed = groqKeySchema.safeParse(groqKey.value.trim());
+  if (!parsed.success) {
+    groqKey.setAttribute("aria-invalid", "true");
+    groqKey.focus();
+    status.textContent = "Masukkan API key dari dasbor Groq.";
+    return;
+  }
+  void (async () => {
+    preferences.disabled = true;
+    try {
+      if (!(await browser.permissions.request(onlinePermission))) {
+        status.textContent = "Izin untuk terhubung ke Groq belum diberikan.";
+        return;
+      }
+      const connected = await request(
+        { type: "groq:connect", key: parsed.data },
+        "API key Groq disimpan.",
+      );
+      if (connected) {
+        groqForm.reset();
+        disconnect.focus();
+      }
+    } catch {
+      status.textContent = "Izin untuk terhubung ke Groq tidak dapat diminta.";
+    } finally {
+      preferences.disabled = settings === undefined;
+    }
+  })();
+});
+disconnect.addEventListener("click", () => {
+  void (async () => {
+    if (await request({ type: "groq:disconnect" }, "API key Groq dihapus.")) {
+      groqKey.focus();
+    }
+  })();
+});
 reset.addEventListener("click", () =>
   request({ type: "settings:reset" }, "Pengaturan dikembalikan ke nilai awal."),
 );
@@ -199,6 +347,13 @@ browser.storage.onChanged.addListener((changes, area) => {
     renderFeedback(changes[feedbackKey].newValue);
   }
   if (area === "local" && changes[settingsKey]) void refreshPlatform();
+  if (area === "session" && changes[onlineStatusKey]) {
+    onlineStatusChanged = true;
+    onlineStatus = onlineStatusSchema.safeParse(
+      changes[onlineStatusKey].newValue,
+    ).data;
+    renderOnlineStatus();
+  }
 });
 
 exportFeedback.addEventListener("click", () => {
@@ -229,4 +384,14 @@ clearFeedback.addEventListener("click", () => {
 });
 
 void loadActivity();
+void (async () => {
+  try {
+    const values = await browser.storage.session.get(onlineStatusKey);
+    if (onlineStatusChanged) return;
+    onlineStatus = onlineStatusSchema.safeParse(values[onlineStatusKey]).data;
+    renderOnlineStatus();
+  } catch {
+    // The popup will show updates if session storage becomes available.
+  }
+})();
 void request({ type: "settings:get" });

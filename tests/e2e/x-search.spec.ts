@@ -23,14 +23,18 @@ async function selectSearchTab(page: Page, name: string, path: string) {
   );
 }
 
-for (const path of ["/home", "/search?q=fixture&f=live"]) {
-  test(`handles semantic X cards on ${path}`, async ({
+for (const { path, currentHome } of [
+  { path: "/home", currentHome: false },
+  { path: "/home", currentHome: true },
+  { path: "/search?q=fixture&f=live", currentHome: false },
+]) {
+  test(`handles semantic X cards on ${path}${currentHome ? " with the current home feed" : ""}`, async ({
     extensionContext,
     popup,
   }) => {
     const page = await openTimeline(extensionContext, path);
     await page.locator("main").evaluate(
-      (main, { text, search }) => {
+      (main, { text, search, currentHome }) => {
         main.removeAttribute("data-testid");
         const selected = main.querySelector(
           '[role="tab"][aria-selected="true"]',
@@ -44,10 +48,12 @@ for (const path of ["/home", "/search?q=fixture&f=live"]) {
           tab.textContent = "Filter Terbaru";
           selected.replaceWith(tab);
         } else {
-          selected.textContent = "For \n you";
+          selected.textContent = currentHome
+            ? "Lini masa terbaru"
+            : "For \n you";
         }
         const list = document.createElement("ol");
-        if (!search) list.setAttribute("role", "feed");
+        if (!search && !currentHome) list.setAttribute("role", "feed");
         for (const [index, id] of ["7401", "7402", "7403"].entries()) {
           const cell = document.createElement("li");
           cell.dataset.index = String(index);
@@ -66,7 +72,7 @@ for (const path of ["/home", "/search?q=fixture&f=live"]) {
           timestamp.href = `/fixture/status/${id}`;
           timestamp.textContent = "1m";
           article.append(body, timestamp);
-          if (search) {
+          if (search || currentHome) {
             const link = document.createElement("div");
             link.dataset.navigationStop = "";
             link.setAttribute("role", "link");
@@ -82,16 +88,18 @@ for (const path of ["/home", "/search?q=fixture&f=live"]) {
         sidebar.append(list.lastElementChild!);
         list.append(sidebar);
         const section = main.querySelector("section")!;
-        if (search) {
-          const searchFeed = document.createElement("div");
-          searchFeed.id = "urt:search:fixture:default";
-          searchFeed.append(list);
-          section.replaceChildren(searchFeed);
+        if (search || currentHome) {
+          const feed = document.createElement("div");
+          feed.id = currentHome
+            ? "urt:home:following:latest"
+            : "urt:search:fixture:default";
+          feed.append(list);
+          section.replaceChildren(feed);
         } else {
           section.replaceWith(list);
         }
       },
-      { text: adHominemText, search: path.startsWith("/search") },
+      { text: adHominemText, search: path.startsWith("/search"), currentHome },
     );
 
     await expect(

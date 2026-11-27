@@ -1,6 +1,7 @@
 node_modules/
 .output/
 .wxt/
+worker/.wrangler/
 playwright-report/
 test-results/
 /datasets/manipulation-pilot/local/

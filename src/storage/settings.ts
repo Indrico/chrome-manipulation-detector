@@ -9,6 +9,8 @@ export const settingsSchema = z.strictObject({
   enabled: z.boolean(),
   showAnnotations: z.boolean(),
   localModel: z.boolean().optional(),
+  online: z.boolean().optional(),
+  onlineProvider: z.literal("groq").optional(),
   categories: categoriesSchema,
 });
 
@@ -18,7 +20,9 @@ export const settingsMessageSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("settings:get") }),
   z.strictObject({
     type: z.literal("settings:patch"),
-    patch: settingsSchema.omit({ version: true }).partial(),
+    patch: settingsSchema
+      .omit({ version: true, onlineProvider: true })
+      .partial(),
   }),
   z.strictObject({ type: z.literal("settings:reset") }),
 ]);
@@ -48,6 +52,7 @@ export function applySettingsPatch(
     enabled: patch.enabled ?? current.enabled,
     showAnnotations: patch.showAnnotations ?? current.showAnnotations,
     ...(patch.localModel === undefined ? {} : { localModel: patch.localModel }),
+    ...(patch.online === undefined ? {} : { online: patch.online }),
     categories: { ...current.categories, ...patch.categories },
   };
 }

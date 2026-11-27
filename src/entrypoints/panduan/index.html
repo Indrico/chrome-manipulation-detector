@@ -29,6 +29,13 @@
         Anda periksa. Eksperimen awal lebih banyak mengenali contoh sintetis
         daripada komentar manusia.
       </p>
+      <p>
+        Untuk analisis online dengan Groq, masukkan API key akun Anda di popup
+        lalu pilih “Simpan dan aktifkan”. Ekstensi memeriksa hingga sepuluh
+        unggahan yang terlihat per permintaan. Di atas unggahan, status memuat,
+        tanda centang, atau nama pola menunjukkan hasilnya. Jika kuota Groq
+        tercapai, hasil sementara diberi label “Analisis lokal”.
+      </p>
       <h2>Pola deteksi</h2>
       <ul>
         <li>
@@ -71,10 +78,19 @@
       </p>
       <h2 id="privasi">Kebijakan privasi</h2>
       <p>
-        Analisis teks berlangsung di perangkat Anda. Ekstensi menyimpan
-        pengaturan, penghitung sesi, dan jumlah umpan balik berdasarkan pola dan
-        alasan pilihan Anda. Teks unggahan, akun, dan alamat halaman tidak masuk
-        ke penyimpanan ekstensi.
+        Secara bawaan, analisis teks berlangsung di perangkat Anda. Ekstensi
+        menyimpan pengaturan, penghitung sesi, dan jumlah umpan balik
+        berdasarkan pola dan alasan pilihan Anda. Teks unggahan, akun, dan
+        alamat halaman tidak masuk ke penyimpanan ekstensi.
+      </p>
+      <p>
+        Jika Groq diaktifkan, teks unggahan yang terlihat dan kutipan yang
+        diperlukan dikirim langsung ke Groq. Tautan, alamat email, dan sebutan
+        akun di dalam teks disamarkan. API key tersimpan di perangkat dan
+        pemakaian mengikuti kuota akun Groq Anda. Pilih “Putuskan Groq” untuk
+        menghapus API key dan menghentikan pengiriman. Pada build pilot, popup
+        menyebut Cloudflare Workers AI sebagai penyedia, dengan batas pemakaian
+        harian yang disimpan di perangkat.
       </p>
       <p>
         Gunakan “Atur ulang pengaturan” untuk menghapus preferensi. Di bagian

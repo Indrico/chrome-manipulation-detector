@@ -6,6 +6,7 @@ export default defineConfig(
   globalIgnores([
     ".output/**",
     ".wxt/**",
+    "worker/.wrangler/**",
     "playwright-report/**",
     "test-results/**",
   ]),

@@ -138,15 +138,19 @@ function findFeed(document: Document): HTMLElement | null {
   const tab = tabs.length === 1 ? tabs[0] : undefined;
   const labels = [tab?.getAttribute("aria-label"), tab?.textContent];
   const search = isSearchPath(url.pathname);
-  const searchFeeds = search
-    ? Array.from(
-        root.querySelectorAll<HTMLElement>(selectors.semanticSearchFeed),
-      ).filter((feed) => !feed.closest(selectors.secondary) && isRendered(feed))
-    : [];
-  const semanticSearch = searchFeeds.length === 1 ? searchFeeds[0] : undefined;
+  const semanticSelector = search
+    ? selectors.semanticSearchFeed
+    : selectors.semanticHomeFeed;
+  const semanticFeeds = [
+    ...root.querySelectorAll<HTMLElement>(semanticSelector),
+  ].filter((feed) => !feed.closest(selectors.secondary) && isRendered(feed));
+  const semanticFeed =
+    semanticFeeds.length === 1 ? semanticFeeds[0] : undefined;
+  if (semanticFeed && !search && tab?.closest('[role="tablist"]'))
+    return semanticFeed;
   const supportedTabs = search ? searchTabs : homeTabs;
   const supportedTab =
-    semanticSearch && tab instanceof HTMLAnchorElement
+    semanticFeed && search && tab instanceof HTMLAnchorElement
       ? supportsSearchLink(tab)
       : labels.some((label) =>
           supportedTabs.has(
@@ -154,7 +158,7 @@ function findFeed(document: Document): HTMLElement | null {
           ),
         );
   if (!supportedTab) return null;
-  if (semanticSearch) return semanticSearch;
+  if (semanticFeed) return semanticFeed;
 
   const regions = [
     ...root.querySelectorAll<HTMLElement>(selectors.feed),
@@ -331,7 +335,10 @@ function locatePost(card: HTMLElement, feed: HTMLElement): LocatedPost | null {
   };
 }
 
-function readQuotedPost(post: LocatedPost): PostContext | undefined {
+function readQuotedPost(
+  post: LocatedPost,
+  online = false,
+): PostContext | undefined {
   const textSelector = post.body.matches(selectors.text)
     ? selectors.text
     : selectors.conversationText;
@@ -349,6 +356,11 @@ function readQuotedPost(post: LocatedPost): PostContext | undefined {
   const bodies = quote.querySelectorAll<HTMLElement>(textSelector);
   const body = bodies.length === 1 ? bodies[0] : undefined;
   if (!body || body.closest('[hidden], [aria-hidden="true"]')) return;
+  if (online) {
+    const { top, bottom, left, right } = body.getBoundingClientRect();
+    if (top >= innerHeight || bottom <= 0 || left >= innerWidth || right <= 0)
+      return;
+  }
 
   if (!quote.matches(selectors.explicitQuote)) {
     const times = quote.querySelectorAll("time");
@@ -385,9 +397,14 @@ function readQuotedPost(post: LocatedPost): PostContext | undefined {
     return { source: "quoted_post", text };
 }
 
-function readPost(post: LocatedPost, includeContext: boolean): PostInput {
+function readPost(
+  post: LocatedPost,
+  includeContext: boolean,
+  online = false,
+): PostInput {
   const text = post.body.innerText.trim();
-  const quote = includeContext && text ? readQuotedPost(post) : undefined;
+  const quote =
+    includeContext && text ? readQuotedPost(post, online) : undefined;
   return quote ? { text, context: [quote] } : { text };
 }
 
@@ -398,4 +415,8 @@ export const xAdapter: PlatformAdapter = {
   changedCards,
   locatePost,
   readPost,
+  readOnlinePost(post, includeContext) {
+    if (post.card.querySelector(selectors.restricted)) return;
+    return readPost(post, includeContext, true);
+  },
 };
