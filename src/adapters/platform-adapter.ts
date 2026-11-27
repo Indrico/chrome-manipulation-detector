@@ -7,6 +7,7 @@ export interface LocatedPost {
 }
 
 export interface PlatformAdapter {
+  readonly observedAttributes?: readonly string[];
   supports(url: Pick<Location, "origin" | "pathname" | "search">): boolean;
   findFeed(document: Document): HTMLElement | null;
   findCards(node: Node): HTMLElement[];

@@ -164,7 +164,7 @@ test("analyzes visible Top and Latest search posts while preserving session coun
   await appendPosts(page, [{ id: "7106", text: adHominemText }]);
   await popup.reload();
   await expect(popup.locator("#platform")).toHaveText(
-    "Buka beranda, hasil Top/Latest, atau detail unggahan X",
+    "Buka beranda, pencarian, atau detail unggahan di X atau Threads",
   );
   await expect(popup.locator("#posts")).toHaveText("3");
 });

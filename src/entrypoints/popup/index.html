@@ -14,7 +14,8 @@
         <p>Pelajari cara sebuah unggahan mencoba meyakinkan pembacanya.</p>
       </header>
       <p class="platform-status">
-        <strong>X</strong> · <span id="platform">Memeriksa tab…</span>
+        <strong id="platform-name" hidden></strong
+        ><span id="platform">Memeriksa tab…</span>
       </p>
       <dl class="session-totals" aria-label="Sesi browser">
         <div>
@@ -77,6 +78,20 @@
           <button type="button" id="groq-disconnect" hidden>
             Putuskan Groq
           </button>
+          <div id="threads-options" hidden>
+            <label>
+              <input
+                type="checkbox"
+                id="threads-online"
+                aria-describedby="threads-disclosure"
+              />
+              Analisis online di Threads
+            </label>
+            <p id="threads-disclosure">
+              Saat diaktifkan, teks unggahan Threads yang terlihat dikirim ke
+              Groq dengan API key yang sudah terhubung.
+            </p>
+          </div>
         </div>
         <p id="online-state" aria-live="polite" hidden></p>
         <fieldset id="categories">

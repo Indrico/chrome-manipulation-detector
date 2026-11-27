@@ -1,5 +1,6 @@
 import { browser } from "wxt/browser";
 import { z } from "zod";
+import type { PlatformId } from "../adapters/platform";
 import { supportedPatternIds } from "../data/patterns";
 import {
   enabledPatterns,
@@ -30,13 +31,14 @@ const usageSchema = z.strictObject({
 });
 
 export function createOnlineService() {
-  let request: AbortController | undefined;
+  let request:
+    { controller: AbortController; platform: PlatformId } | undefined;
 
   async function pause(
     reason: OnlineStatus["reason"],
     retryAt: number,
   ): Promise<OnlineReply> {
-    if (request?.signal.aborted) return { deferred: true };
+    if (request?.controller.signal.aborted) return { deferred: true };
     const status = { reason, retryAt };
     await browser.storage.session.set({ [onlineStatusKey]: status });
     return { status };
@@ -50,13 +52,17 @@ export function createOnlineService() {
   }
 
   return {
-    cancel() {
-      request?.abort();
+    cancel(platform?: PlatformId) {
+      if (request && (!platform || request.platform === platform))
+        request.controller.abort();
     },
-    async analyze(batch: OnlineBatch): Promise<OnlineReply> {
+    async analyze(
+      batch: OnlineBatch,
+      platform: PlatformId,
+    ): Promise<OnlineReply> {
       if (request) return { deferred: true };
       const controller = new AbortController();
-      request = controller;
+      request = { controller, platform };
       try {
         const [local, session, granted] = await Promise.all([
           browser.storage.local.get(
@@ -69,6 +75,8 @@ export function createOnlineService() {
         const categories = enabledPatterns(settings, supportedPatternIds);
         if (
           !settings.online ||
+          (platform === "threads" &&
+            (onlineOrigin || settings.threadsOnline !== true)) ||
           (!onlineOrigin && settings.onlineProvider !== "groq") ||
           categories.join() !== batch.categories.join() ||
           controller.signal.aborted

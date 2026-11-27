@@ -104,7 +104,7 @@ export type OnlineStatus = z.infer<typeof onlineStatusSchema>;
 
 export function maskIdentifiers(text: string) {
   return text.replace(
-    /https?:\/\/[^\s<>]+|\b(?:www\.|(?:pic\.)?(?:x|twitter)\.com\/|t\.co\/)[^\s<>]+|[\w.+-]+@[\w.-]+\.[a-z]{2,}|@[\w]+/giu,
+    /https?:\/\/[^\s<>]+|\b(?:www\.|(?:pic\.)?(?:x|twitter)\.com\/|threads\.com\/|t\.co\/)[^\s<>]+|[\w.+-]+@[\w.-]+\.[a-z]{2,}|@[\w]+(?:[.-][\w]+)*/giu,
     (match) => "•".repeat(match.length),
   );
 }

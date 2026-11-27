@@ -4,21 +4,21 @@ A privacy-first Chrome extension for learning to recognize rhetorical patterns i
 
 ## Current status
 
-The current source includes all eight detection categories and supports the **For You** and **Following** home timelines, the **Top** and **Latest** search results, and the main post on a direct status page on `x.com`. Inline explanations appear as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
+The current source includes all eight detection categories and supports X and Threads. On X, it covers the **For You** and **Following** home timelines, **Top** and **Latest** search results, and the main post on a direct status page. On `www.threads.com`, it covers **For you** and **Following**, keyword search results containing posts, and the main post on its detail page. Inline explanations appear as eligible posts enter the viewport. The popup controls detection, annotation visibility, categories, and local feedback.
 
-The adapter recognizes English and Indonesian timeline labels and depends on the rendered X layout. It skips known replies in feeds, surrounding posts on status pages, collapsed posts, and cards with ambiguous structure. Whataboutism and Strawman can compare the main post with a clearly associated, rendered quote card. Browser tests use a mock X feed. Compatibility with the current signed-in X layout remains unverified.
+The adapters depend on each site's rendered layout. They skip known replies in feeds, surrounding posts on detail pages, collapsed posts, and cards with ambiguous structure. Whataboutism and Strawman can compare the main post with a clearly associated, rendered quote card. Threads analysis targets an identifiable main column. Browser regression tests use synthetic X and Threads feeds.
 
 The popup counts each analyzed post revision and each of its detected categories once per tab document while the revision is in the bounded cache. Changes to a quote can update the annotation without recounting the main post. Both totals reset with the browser session.
 
 Enable **Model lokal (eksperimental)** in the popup to try additional on-device suggestions for Ad Hominem, False Dilemma, and Guilt Tripping. The setting is off by default. See the [pilot model evaluation](docs/DETECTION-METHODOLOGY.md#experimental-local-model) for results and limits.
 
-To enable online analysis, create an [API key in your Groq account](https://console.groq.com/keys), paste it into **API key Groq** in the popup, and choose **Simpan dan aktifkan**. The standard build sends batches of up to ten visible posts directly to Groq and uses the quota of your Groq organization. The extension shows **Analisis lokal** when the online service cannot complete an analysis. Choose **Putuskan Groq** to remove the key from Chrome. See the [privacy policy](docs/PRIVACY.md).
+To enable online analysis on X, create an [API key in your Groq account](https://console.groq.com/keys), paste it into **API key Groq** in the popup, and choose **Simpan dan aktifkan**. To use the same key on Threads, enable **Analisis online di Threads**. The standard build sends batches of up to ten visible posts directly to Groq and uses the quota of your Groq organization. The extension shows **Analisis lokal** when the online service cannot complete an analysis. Choose **Putuskan Groq** to remove the key from Chrome. See the [privacy policy](docs/PRIVACY.md).
 
 ## Install
 
 1. Download the Chrome ZIP and its SHA-256 checksum from [GitHub Releases](https://github.com/Indrico/chrome-manipulation-detector/releases). Verify the ZIP against the checksum, then extract it.
 2. Open `chrome://extensions`, turn on Developer mode, and choose **Load unpacked**. Select the extracted directory that contains `manifest.json`.
-3. Open **Manipulation Detector** from the toolbar and refresh the X tab.
+3. Open **Manipulation Detector** from the toolbar and refresh the X or Threads tab.
 
 ## Develop
 

@@ -61,3 +61,7 @@ export const platformStatusSchema = z.enum([
   "unsupported",
 ]);
 export type PlatformStatus = z.infer<typeof platformStatusSchema>;
+export const platformResponseSchema = z.strictObject({
+  platform: z.enum(["x", "threads"]),
+  status: platformStatusSchema,
+});

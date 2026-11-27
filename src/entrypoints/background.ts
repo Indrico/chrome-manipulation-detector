@@ -1,6 +1,6 @@
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
-import { xOrigin } from "../adapters/x/selectors";
+import { platformForOrigin } from "../adapters/platform";
 import { createOnlineService } from "../online/background";
 import { onlineOrigin, onlinePermission } from "../online/config";
 import { writeGroqKey } from "../online/credentials";
@@ -67,6 +67,14 @@ async function processSettings(message: SettingsMessage) {
   if (!onlineOrigin && message.patch.online !== undefined)
     throw new Error("Use the Groq connection controls");
   if (
+    message.patch.threadsOnline === true &&
+    (onlineOrigin ||
+      !settings.online ||
+      settings.onlineProvider !== "groq" ||
+      !(await browser.permissions.contains(onlinePermission)))
+  )
+    throw new Error("A Groq connection is required for Threads");
+  if (
     message.patch.online === true &&
     (!onlineOrigin || !(await browser.permissions.contains(onlinePermission)))
   )
@@ -98,7 +106,7 @@ async function processGroqConnection(message: GroqConnectionMessage) {
     return settings;
   }
 
-  const settings = { ...current, online: false };
+  const settings = { ...current, online: false, threadsOnline: false };
   delete settings.onlineProvider;
   await storage.set({ [settingsKey]: settings });
   await writeGroqKey();
@@ -107,16 +115,13 @@ async function processGroqConnection(message: GroqConnectionMessage) {
   return settings;
 }
 
-function isXSender(
-  url: string | undefined,
-  frameId: number | undefined,
-): boolean {
-  if (!url || frameId !== 0) return false;
+function senderPlatform(url: string | undefined, frameId: number | undefined) {
+  if (!url || frameId !== 0) return;
   try {
     // Chrome may supply the original document URL after a same-document navigation.
-    return new URL(url).origin === xOrigin;
+    return platformForOrigin(new URL(url).origin);
   } catch {
-    return false;
+    return;
   }
 }
 
@@ -151,6 +156,8 @@ export default defineBackground(() => {
       JSON.stringify(before.categories) !== JSON.stringify(after.categories)
     )
       online.cancel();
+    else if (before.threadsOnline && !after.threadsOnline)
+      online.cancel("threads");
   });
   browser.permissions.onRemoved.addListener(() => online.cancel());
 
@@ -159,10 +166,10 @@ export default defineBackground(() => {
       if (sender.id !== browser.runtime.id) return false;
 
       let respond: () => Promise<unknown>;
-      const fromX = isXSender(sender.url, sender.frameId);
+      const platform = senderPlatform(sender.url, sender.frameId);
       const settingsRequest = settingsMessageSchema.safeParse(message);
       if (
-        fromX &&
+        platform &&
         settingsRequest.success &&
         settingsRequest.data.type === "settings:get"
       ) {
@@ -196,7 +203,7 @@ export default defineBackground(() => {
           };
         }
       } else {
-        if (!fromX) return false;
+        if (!platform) return false;
         if (
           message &&
           typeof message === "object" &&
@@ -206,7 +213,7 @@ export default defineBackground(() => {
           const request = onlineMessageSchema.safeParse(message);
           if (!request.success) return false;
           void online
-            .analyze(request.data.batch)
+            .analyze(request.data.batch, platform)
             .then(sendResponse, () => sendResponse({ deferred: true }));
           return true;
         }

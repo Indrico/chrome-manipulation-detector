@@ -1,10 +1,13 @@
 # Architecture
 
-Manipulation Detector is a Chrome Manifest V3 extension. WXT bundles three extension surfaces with Vite. The Indonesian popup and bundled guide are extension pages. The X content script runs in the top-frame isolated world, and the background service worker owns persistent writes.
+Manipulation Detector is a Chrome Manifest V3 extension. WXT bundles the Indonesian popup, bundled guide, content scripts, and background service worker with Vite. The X and Threads content scripts run in the top-frame isolated world, and the background service worker owns persistent writes.
 
 ## From post to annotation
 
 1. The X adapter recognizes the For You and Following home timelines and the Top and Latest search results. On a direct status page it selects the main post by matching its timestamp permalink to the requested status ID. Platform selectors and eligibility rules live in the adapter. It extracts the visible main text and can supply one clearly associated quote as context.
+
+   The Threads adapter recognizes the For you and Following feeds, keyword search results, and main posts on detail pages. It uses timestamp permalinks and the surrounding card structure to distinguish the body from profile links and actions. Selectors for server-rendered and interactive card variants stay inside the adapter. Both scripts use the same feed lifecycle.
+
 2. The feed monitor batches DOM mutations and uses viewport intersection to select posts. It hashes text locally to deduplicate within a bounded tab-local cache. Cache entries contain fingerprints, evidence spans, and static explanations. Changing the quote only invalidates context-dependent decisions. Pausing or leaving the timeline clears active observers and annotations.
 3. The pure detection engine normalizes text, extracts context cues, and dispatches the enabled deterministic detectors. When the local model is enabled, it can add a suggestion for a pilot category without a rule result. It scores up to ten sentences and adjacent pairs in short posts using bundled coefficients. Switching modes invalidates the three affected cached categories and preserves the revision’s session counts. Results preserve their original text spans and use qualitative confidence. The annotation presents candidate results as text in its own shadow root.
 
@@ -12,7 +15,7 @@ Manipulation Detector is a Chrome Manifest V3 extension. WXT bundles three exten
 
 The background validates message schemas and their senders, then serializes storage writes. The content script sends aggregate counts and explicitly selected feedback reasons. In local mode, text is processed in the content script and original excerpts are displayed on the same page. Feedback is exported only through a local download initiated in the popup.
 
-The production manifest requests `storage` and scopes its static content script to `https://x.com/*` for navigation within X. The script gates analysis by the current route and selected tab. The standard build limits extension page network connections to `https://api.groq.com` through CSP and requests optional host permission during Groq setup.
+The production manifest requests `storage` and scopes its static content scripts to `https://x.com/*` and `https://www.threads.com/*`. Each script gates analysis by the current route and visible tab. The standard build limits extension page network connections to `https://api.groq.com` through CSP and requests optional host permission during Groq setup. The background derives the platform from the verified sender origin and enforces separate opt-in before sending Threads text.
 
 ## Online analysis with a user API key
 

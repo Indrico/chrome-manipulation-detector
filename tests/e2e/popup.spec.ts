@@ -32,13 +32,18 @@ test("production manifest restricts site access and bundles local assets and not
   expect(
     await readFile(resolve(extensionDirectory, "notices/x.md"), "utf8"),
   ).toContain("zod");
-  expect(manifest.content_scripts).toEqual([
-    expect.objectContaining({
-      matches: ["https://x.com/*"],
-      all_frames: false,
-      world: "ISOLATED",
-    }),
-  ]);
+  expect(manifest.content_scripts).toHaveLength(2);
+  expect(manifest.content_scripts).toEqual(
+    expect.arrayContaining(
+      ["https://x.com/*", "https://www.threads.com/*"].map((match) =>
+        expect.objectContaining({
+          matches: [match],
+          all_frames: false,
+          world: "ISOLATED",
+        }),
+      ),
+    ),
+  );
 });
 
 test("popup settings persist, merge, and reset", async ({
@@ -50,7 +55,7 @@ test("popup settings persist, merge, and reset", async ({
   await firstPopup.goto(url);
   await expect(
     firstPopup.getByText(
-      "Buka beranda, hasil Top/Latest, atau detail unggahan X",
+      "Buka beranda, pencarian, atau detail unggahan di X atau Threads",
     ),
   ).toBeVisible();
   const firstToggle = firstPopup.getByRole("checkbox", {

@@ -1,4 +1,5 @@
 import { browser } from "wxt/browser";
+import type { PlatformId } from "../../adapters/platform";
 import { patternNames, supportedPatternIds } from "../../data/patterns";
 import { onlineOrigin, onlinePermission } from "../../online/config";
 import {
@@ -12,7 +13,7 @@ import {
   feedbackKey,
   feedbackSchema,
   platformRequest,
-  platformStatusSchema,
+  platformResponseSchema,
   readTotals,
   totalsKey,
   type FeedbackRecord,
@@ -44,6 +45,11 @@ const categories = document.querySelector<HTMLFieldSetElement>("#categories")!;
 const reset = document.querySelector<HTMLButtonElement>("#reset")!;
 const status = document.querySelector<HTMLParagraphElement>("#status")!;
 const platform = document.querySelector<HTMLElement>("#platform")!;
+const platformName = document.querySelector<HTMLElement>("#platform-name")!;
+const threadsOptions =
+  document.querySelector<HTMLDivElement>("#threads-options")!;
+const threadsOnline =
+  document.querySelector<HTMLInputElement>("#threads-online")!;
 const posts = document.querySelector<HTMLElement>("#posts")!;
 const patterns = document.querySelector<HTMLElement>("#patterns")!;
 const exportFeedback =
@@ -60,6 +66,8 @@ let feedbackChanged = false;
 let onlineStatus: OnlineStatus | undefined;
 let onlineStatusChanged = false;
 let onlineStatusTimer: number | undefined;
+let activePlatform: PlatformId | undefined;
+let platformRequestId = 0;
 onlineOptions.hidden = !onlineOrigin;
 groqOptions.hidden = !!onlineOrigin;
 
@@ -88,6 +96,13 @@ function renderOnlineStatus() {
   onlineState.hidden = !settings?.online;
   if (!settings?.online) return;
   if (
+    activePlatform === "threads" &&
+    (onlineOrigin || !settings.threadsOnline)
+  ) {
+    onlineState.textContent = "Analisis lokal aktif di Threads.";
+    return;
+  }
+  if (
     !settings.enabled ||
     supportedPatternIds.every((id) => settings?.categories[id] === false)
   ) {
@@ -111,11 +126,14 @@ const platformLabels: Readonly<Record<PlatformStatus, string>> = {
   active: "Deteksi aktif",
   waiting: "Menunggu unggahan di halaman X",
   paused: "Deteksi dijeda",
-  unsupported: "Buka beranda, hasil Top/Latest, atau detail unggahan X",
+  unsupported:
+    "Buka beranda, pencarian, atau detail unggahan di X atau Threads",
 };
 
 async function refreshPlatform() {
+  const requestId = ++platformRequestId;
   let result: PlatformStatus = "unsupported";
+  let source: PlatformId | undefined;
   try {
     const [tab] = await browser.tabs.query({
       active: true,
@@ -127,21 +145,32 @@ async function refreshPlatform() {
         platformRequest,
         { frameId: 0 },
       );
-      result = platformStatusSchema.safeParse(reply).data ?? result;
+      const state = platformResponseSchema.safeParse(reply).data;
+      source = state?.platform;
+      result = state?.status ?? result;
     }
   } catch {
     // Tabs outside the supported site have no content script.
   }
+  if (requestId !== platformRequestId) return;
+  activePlatform = source;
+  platformName.hidden = !source;
+  platformName.textContent = source === "threads" ? "Threads · " : "X · ";
+  renderOnlineStatus();
   // The current settings also cover the interval before the tab receives a change.
   platform.textContent =
-    platformLabels[
-      result === "active" &&
-      settings &&
-      (!settings.enabled ||
-        supportedPatternIds.every((id) => settings?.categories[id] === false))
-        ? "paused"
-        : result
-    ];
+    source === "threads" && result === "waiting"
+      ? "Menunggu unggahan di halaman Threads"
+      : platformLabels[
+          result === "active" &&
+          settings &&
+          (!settings.enabled ||
+            supportedPatternIds.every(
+              (id) => settings?.categories[id] === false,
+            ))
+            ? "paused"
+            : result
+        ];
 }
 
 function renderTotals(value: unknown) {
@@ -202,6 +231,9 @@ function render() {
   online.checked = settings.online === true;
   groqForm.hidden = settings.online === true;
   disconnect.hidden = settings.online !== true;
+  threadsOptions.hidden =
+    !!onlineOrigin || settings.onlineProvider !== "groq" || !settings.online;
+  threadsOnline.checked = settings.threadsOnline === true;
   renderOnlineStatus();
   for (const { patternId, control } of categoryControls) {
     control.checked = settings.categories[patternId] !== false;
@@ -261,6 +293,12 @@ localModel.addEventListener("change", () =>
   request(
     { type: "settings:patch", patch: { localModel: localModel.checked } },
     "Pengaturan tersimpan.",
+  ),
+);
+threadsOnline.addEventListener("change", () =>
+  request(
+    { type: "settings:patch", patch: { threadsOnline: threadsOnline.checked } },
+    "Pengaturan Threads tersimpan.",
   ),
 );
 online.addEventListener("change", () => {

@@ -3,6 +3,7 @@ import { once } from "node:events";
 import { createServer } from "node:http";
 import type { browser } from "wxt/browser";
 import { storage, test } from "../support/extension-fixture";
+import { appendThreads, openThreads } from "../support/threads-timeline";
 import {
   adHominemText,
   annotation,
@@ -304,4 +305,70 @@ test("uses local detection for a Groq JSON validation error and sends the next b
     expect.stringContaining("Jadwal rapat"),
     expect.stringContaining("Pertemuan dimulai"),
   ]);
+});
+
+test("requires separate consent for Threads and batches ten public posts", async ({
+  extensionContext,
+  popup,
+}) => {
+  await connect(popup);
+  const optIn = popup.getByRole("checkbox", {
+    name: "Analisis online di Threads",
+  });
+  await expect(optIn).not.toBeChecked();
+  const page = await openThreads(extensionContext, "/search?q=private-search");
+  await page.setViewportSize({ width: 1200, height: 1800 });
+  await appendThreads(page, [
+    ...Array.from({ length: 10 }, (_, index) => ({
+      id: `Public${index}`,
+      text:
+        index === 0
+          ? adHominemText
+          : `Rapat ${index} dimulai pukul 10. @akun.tes threads.com/@akun.tes/post/ID`,
+    })),
+    {
+      id: "Private",
+      text: "Kalimat terbatas hanya untuk pengikut.",
+      kind: "private",
+    },
+  ]);
+  await expect(popup.locator("#posts")).toHaveText("11");
+  expect(calls).toHaveLength(0);
+
+  await optIn.check();
+  await page.bringToFront();
+  await expect(
+    page.locator(`${annotation}[data-analysis-status="clear"]`),
+  ).toHaveCount(9);
+  await expect(
+    page.locator('[data-mock-id="Public0"]').locator("summary"),
+  ).toHaveText("Indikasi Ad Hominem");
+  await expect(
+    page
+      .locator('[data-mock-id="Private"]')
+      .locator('[data-analysis-status="local_clear"]'),
+  ).toBeVisible();
+  expect(calls).toHaveLength(1);
+  const request = calls[0]!.request.messages[1]!.content;
+  expect(JSON.parse(request).posts).toHaveLength(10);
+  expect(request).not.toMatch(
+    /private-search|Public0|@akun|threads\.com|terbatas/,
+  );
+
+  replyStatuses.push(400);
+  await appendThreads(page, [
+    { id: "FormatFailure", text: "Contoh kegagalan format." },
+  ]);
+  await expect(
+    page
+      .locator('[data-mock-id="FormatFailure"]')
+      .locator('[data-analysis-status="local_clear"]'),
+  ).toBeVisible();
+  await optIn.uncheck();
+  await page.bringToFront();
+  await appendThreads(page, [
+    { id: "AfterRevoke", text: "Contoh sesudah izin Threads dimatikan." },
+  ]);
+  await expect(popup.locator("#posts")).toHaveText("13");
+  expect(calls).toHaveLength(2);
 });

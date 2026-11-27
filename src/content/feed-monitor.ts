@@ -257,6 +257,7 @@ export function createFeedMonitor(
         "role",
         "style",
         "class",
+        ...(adapter.observedAttributes ?? []),
       ],
     });
     for (const card of adapter.findCards(feed)) pending.add(card);
@@ -430,12 +431,14 @@ export function createFeedMonitor(
       if (results === undefined) {
         state.running = true;
         paintStatus(state, "loading");
-        const matches = await online.add(
-          revision,
-          post,
-          categories,
-          () => matchesCurrent() && canAnalyze(state),
-        );
+        const matches = await online.add(revision, post, categories, () => {
+          if (!matchesCurrent() || !canAnalyze(state)) return false;
+          const latest = adapter.readOnlinePost?.(state.post, includeContext);
+          return (
+            latest?.text === text &&
+            (!post.context || latest.context?.[0]?.text === contextText)
+          );
+        });
         state.running = false;
         if (matches && "status" in matches) {
           paused = matches.status.reason;

@@ -11,6 +11,7 @@ export const settingsSchema = z.strictObject({
   localModel: z.boolean().optional(),
   online: z.boolean().optional(),
   onlineProvider: z.literal("groq").optional(),
+  threadsOnline: z.boolean().optional(),
   categories: categoriesSchema,
 });
 
@@ -53,6 +54,9 @@ export function applySettingsPatch(
     showAnnotations: patch.showAnnotations ?? current.showAnnotations,
     ...(patch.localModel === undefined ? {} : { localModel: patch.localModel }),
     ...(patch.online === undefined ? {} : { online: patch.online }),
+    ...(patch.threadsOnline === undefined
+      ? {}
+      : { threadsOnline: patch.threadsOnline }),
     categories: { ...current.categories, ...patch.categories },
   };
 }
